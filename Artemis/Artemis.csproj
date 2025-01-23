@@ -32,7 +32,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NWDB Scraper\NWDB Scraper.csproj" />
+    <ProjectReference Include="..\NWDB Scraper\NWDB Scraper.csproj">
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
