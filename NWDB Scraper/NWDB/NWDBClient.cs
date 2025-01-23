@@ -81,7 +81,9 @@ public class NWDBClient
             var pageItems = await GetEntitiesAsync(Constants.PageUrl(collectionName, i));
             items.InsertBulk(pageItems);
             Console.WriteLine("Retrieved {0} page {1}/{2}", collectionName, i, pageCount);
-            if (i % 10 == 0) await Task.Delay(10);
+
+            // Wait a little bit to avoid rate limit.
+            if (i % 10 == 0) await Task.Delay(1000);
         }
     }
 }
