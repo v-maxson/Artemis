@@ -35,7 +35,7 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
     {
         await RespondAsync(
             InteractionCallback.Message(
-                new InteractionMessageProperties().WithContent(item)
+                new InteractionMessageProperties().WithContent($"[Here!]({item})")
             )
         );
     }
