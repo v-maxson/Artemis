@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using Hangfire;
-using Hangfire.MemoryStorage;
+using Hangfire.LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetCord;
@@ -28,7 +28,7 @@ var builder = Host.CreateApplicationBuilder();
 builder.Services
     .AddSerilog()
     .AddSingleton<Stopwatch>()
-    .AddHangfire(x => x.UseMemoryStorage())
+    .AddHangfire(x => x.UseLiteDbStorage())
     .AddHangfireServer()
     .AddSingleton(config)
     .AddSingleton<Cache.MessageCache>()
