@@ -66,10 +66,13 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
         var createdChannel = await guild.CreateChannelAsync(
             new GuildChannelProperties(userSettings.ChannelName, ChannelType.VoiceGuildChannel)
                 .WithUserLimit(userSettings.ChannelLimit)
+                .WithPermissionOverwrites([
+                    new PermissionOverwriteProperties(currentState.UserId, PermissionOverwriteType.User)
+                        .WithAllowed(Permissions.ManageChannels)
+                ])
                 .WithParentId(currentChannel.ParentId)
         );
 
-        
         var vmChannelsCollection = GuildVoiceMasterChannels.GetCollection(db);
         var guildVmChannels = GuildVoiceMasterChannels.GetOrCreateInCollection(currentState.GuildId, vmChannelsCollection);
 
