@@ -27,7 +27,6 @@ public class ReadyHandler(GatewayClient client, Config config, Stopwatch stopwat
 
         // Hangfire Jobs.
         RecurringJob.AddOrUpdate("SetRandomPresence", () => SetRandomPresenceAsync(), Cron.Minutely);
-        Database.Database.CreateBackup();
         RecurringJob.AddOrUpdate("Database Backup", () => Database.Database.CreateBackup(), Cron.Daily);
     }
 
