@@ -11,74 +11,110 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
     [SubSlashCommand("item", "Search for an item in the New World Database.")]
     public async Task ItemAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the item to search for.", AutocompleteProviderType = typeof(ItemsAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("mount", "Search for a mount in the New World Database.")]
     public async Task MountAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the mount to search for.", AutocompleteProviderType = typeof(MountsAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("recipe", "Search for a recipe in the New World Database.")]
     public async Task RecipeAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the recipe to search for.", AutocompleteProviderType = typeof(RecipesAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("ability", "Search for an ability in the New World Database.")]
     public async Task AbilityAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the ability to search for.", AutocompleteProviderType = typeof(AbilitiesAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("perk", "Search for a perk in the New World Database.")]
     public async Task PerkAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the perk to search for.", AutocompleteProviderType = typeof(PerksAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("status-effect", "Search for a status effect in the New World Database.")]
     public async Task StatusEffectAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the status effect to search for.", AutocompleteProviderType = typeof(StatusEffectsAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("quest", "Search for a quest in the New World Database.")]
     public async Task QuestAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the quest to search for.", AutocompleteProviderType = typeof(QuestsAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("creature", "Search for a creature in the New World Database.")]
     public async Task CreatureAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the creature to search for.", AutocompleteProviderType = typeof(CreaturesAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("gatherable", "Search for a gatherable in the New World Database.")]
     public async Task GatherableAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the gatherable to search for.", AutocompleteProviderType = typeof(GatherablesAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("shop", "Search for a shop in the New World Database.")]
     public async Task ShopAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the shop to search for.", AutocompleteProviderType = typeof(ShopsAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("npc", "Search for an NPC in the New World Database.")]
     public async Task NPCAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the NPC to search for.", AutocompleteProviderType = typeof(NPCSAutocompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("zone", "Search for a zone in the New World Database.")]
     public async Task ZoneAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the zone to search for.", AutocompleteProviderType = typeof(ZonesAutoCompleteProvider))]
-        string name
-    ) => await SendLink(name);
+        string name,
+
+        [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
+        bool ephemeral = true
+    ) => await SendLink(name, ephemeral);
 
     [SubSlashCommand("count", "Count the number of items in the New World Database.")]
     public async Task CountAsync()
@@ -127,13 +163,12 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
         });
     }
 
-    private async Task SendLink(string link)
+    private async Task SendLink(string link, bool ephemeral)
     {
-        await RespondAsync(
-            InteractionCallback.Message(
-                new InteractionMessageProperties().WithContent($"[Here!]({link})")
-            )
-        );
+        var message = new InteractionMessageProperties().WithContent($"[Here!]({link})");
+        if (ephemeral) message.WithFlags(MessageFlags.Ephemeral);
+
+        await RespondAsync(InteractionCallback.Message(message));
     }
 }
 
