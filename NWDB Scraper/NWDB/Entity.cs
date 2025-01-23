@@ -3,10 +3,10 @@ using LiteDB;
 
 namespace NWDB;
 
-public class Item
+public class Entity
 {
     // Item should only be constructed internally.
-    internal Item() { }
+    internal Entity() { }
 
     [BsonId]
     internal int Id { get; set; }
