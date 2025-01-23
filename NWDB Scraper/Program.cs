@@ -4,28 +4,48 @@
 using LiteDB;
 using NWDB;
 
-const int ITEM_PAGE_COUNT = 693;
+Console.WriteLine("Collecting data...");
 
-Console.WriteLine("Collecting items...");
-var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
 var client = new NWDBClient();
-
 using var db = new LiteDatabase("nwdb.db");
-var items = db.GetCollection<Item>("items");
 
-for (int i = 1; i <= ITEM_PAGE_COUNT; i++)
-{
-    var pageItems = await client.GetItemsAsync(i);
-    items.InsertBulk(pageItems);
-    Console.WriteLine("Retrieved Items page {0}/{1}", i, ITEM_PAGE_COUNT);
+const int ItemsPageCount = 693;
+const int MountsPageCount = 2;
+const int RecipesPageCount = 158;
+const int AbilitiesPageCount = 12;
+const int PerksPageCount = 23;
+const int StatusEffectsPageCount = 67;
+const int QuestsPageCount = 95;
+const int CreaturesPageCount = 150;
+const int GatherablesPageCount = 81;
+const int ShopsPageCount = 22;
+const int NPCSPageCount = 25;
+const int ZonesPageCount = 26;
 
-    if (i % 10 == 0)
-    {
-        Console.WriteLine("Waiting 5 seconds...");
-        await Task.Delay(5000);
-    }
-}
+var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+// Batch these to avoid rate limit.
+await Task.WhenAll(
+    client.AddEntitiesToDb(db, "items", ItemsPageCount),
+    client.AddEntitiesToDb(db, "mounts", MountsPageCount),
+    client.AddEntitiesToDb(db, "recipes", RecipesPageCount),
+    client.AddEntitiesToDb(db, "abilities", AbilitiesPageCount)
+);
+
+await Task.WhenAll(
+    client.AddEntitiesToDb(db, "perks", PerksPageCount),
+    client.AddEntitiesToDb(db, "status-effects", StatusEffectsPageCount),
+    client.AddEntitiesToDb(db, "quests", QuestsPageCount),
+    client.AddEntitiesToDb(db, "creatures", CreaturesPageCount)
+);
+
+await Task.WhenAll(
+    client.AddEntitiesToDb(db, "gatherables", GatherablesPageCount),
+    client.AddEntitiesToDb(db, "shops", ShopsPageCount),
+    client.AddEntitiesToDb(db, "npcs", NPCSPageCount),
+    client.AddEntitiesToDb(db, "zones", ZonesPageCount)
+);
 
 stopwatch.Stop();
-Console.WriteLine($"Collected {items.Count()} items in {stopwatch.ElapsedMilliseconds}ms.");
+Console.WriteLine($"Total data collection took {stopwatch.Elapsed}");
