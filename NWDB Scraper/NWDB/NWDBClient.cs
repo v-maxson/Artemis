@@ -9,7 +9,7 @@ public class NWDBClient
     {
         public const string BaseUrl = "https://nwdb.info";
 
-        public static string PageUrl(string collection, int page) => $"{BaseUrl}/db/{collection}/page/{page}";
+        public static string PageUrl(string collection, int page) => $"{BaseUrl}/db/{collection}/page/{page}?sort=name_asc";
     }
 
     private readonly HtmlWeb HtmlWeb = new();
