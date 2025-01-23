@@ -1,4 +1,4 @@
 ﻿using System.Reflection;
 
 [assembly: AssemblyTitle($"Artemis")]
-[assembly: AssemblyVersion("2.3.*")]
+[assembly: AssemblyVersion("2.4.*")]
