@@ -13,6 +13,31 @@ public class NWDBClient
     }
 
     private readonly HtmlWeb HtmlWeb = new();
+    private readonly Random Random = new();
+
+    public NWDBClient()
+    {
+        // Randomize User-Agent to avoid rate limit.
+        HtmlWeb.PreRequest += (request) =>
+        {
+            // Thanks ChatGPT
+            string[] headers = [
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+                "Mozilla/5.0 (Windows NT 6.1; rv:87.0) Gecko/20100101 Firefox/87.0",
+                "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QP1A.191105.003) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36",
+                "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/92.0.902.67 Safari/537.36",
+                "Mozilla/5.0 (Linux; U; Android 11; en-US; SM-G991U Build/RQ3A.210905.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Mobile Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36 Edg/94.0.992.31",
+                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0",
+                "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:62.0) Gecko/20100101 Firefox/62.0"
+                ];
+
+            request.Headers.Add("User-Agent", headers[Random.Next(0, headers.Length)]);
+            return true;
+        };
+    }
 
     public async Task<IEnumerable<Entity>> GetEntitiesAsync(string url)
     {
