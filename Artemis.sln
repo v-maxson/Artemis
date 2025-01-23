@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWDB Scraper", "NWDB Scraper\NWDB Scraper.csproj", "{5DDD540A-4572-4408-9DA0-3385EF312CCC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artemis", "Artemis\Artemis.csproj", "{7AA20F03-DC80-4E38-B90D-EC7753DBFAEB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5DDD540A-4572-4408-9DA0-3385EF312CCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DDD540A-4572-4408-9DA0-3385EF312CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DDD540A-4572-4408-9DA0-3385EF312CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DDD540A-4572-4408-9DA0-3385EF312CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AA20F03-DC80-4E38-B90D-EC7753DBFAEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AA20F03-DC80-4E38-B90D-EC7753DBFAEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AA20F03-DC80-4E38-B90D-EC7753DBFAEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AA20F03-DC80-4E38-B90D-EC7753DBFAEB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
