@@ -33,7 +33,7 @@ public class MessageUpdateHandler(GatewayClient client, Cache.MessageCache cache
 
 
         // If previousMessage length + currentMessage length is more than 4000 (Max Discord Message Size), only include the old content.
-        var description = $"**Old Content:**\n{previousMessage?.Content ?? "Unknown."}\n\n**New Content:**\n{currentMessage.Content}";
+        var description = $"**Old Content:**\n{previousMessage?.Content ?? "Unknown."}\n\n**[New Content]({currentMessage.GetUrl()}):**\n{currentMessage.Content}";
         if (((previousMessage?.Content.Length ?? 0) + currentMessage.Content.Length) >= 4000)
         {
             description = $"**Old Content:**\n{previousMessage?.Content ?? "Unknown."}\n\n**New Content:**\nClick [here]({currentMessage.GetUrl()})";
