@@ -8,6 +8,7 @@ namespace Modules;
 [SlashCommand("nwdb", "New World Database commands.")]
 public partial class NewWorldDatabaseModule : ApplicationCommandModule<ApplicationCommandContext>
 {
+    #region Search Commands
     [SubSlashCommand("item", "Search for an item in the New World Database.")]
     public async Task ItemAsync(
         [SlashCommandParameter(Name = "name", Description = "The name of the item to search for.", AutocompleteProviderType = typeof(ItemsAutocompleteProvider))]
@@ -115,6 +116,7 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
         [SlashCommandParameter(Name = "ephemeral", Description = "Whether the response should be ephemeral (only displays for you). Default: True")]
         bool ephemeral = true
     ) => await SendLink(name, ephemeral);
+    #endregion
 
     [SubSlashCommand("count", "Count the number of items in the New World Database.")]
     public async Task CountAsync()
