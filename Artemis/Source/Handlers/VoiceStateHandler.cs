@@ -103,8 +103,10 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
         if (await voiceChannel.GetConnectedUserCountAsync(Client) == 0)
         {
             await voiceChannel.DeleteAsync();
-            guildVmChannels.Channels.Remove((ulong)previousState.ChannelId!);
-            GuildVoiceMasterChannels.Upsert(guildVmChannels);
+
+            // This is handled in the VoiceChannelDelete event now.
+            //guildVmChannels.Channels.Remove((ulong)previousState.ChannelId!);
+            //GuildVoiceMasterChannels.Upsert(guildVmChannels);
         }
     }
 }
