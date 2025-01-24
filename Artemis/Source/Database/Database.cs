@@ -1,6 +1,6 @@
 ﻿using LiteDB;
 
-namespace Database;
+namespace DB;
 
 internal static class Database
 {
@@ -9,10 +9,9 @@ internal static class Database
     public const string DB_FILE = $"{DB_FILE_NAME}{DB_FILE_EXT}";
     public const string DB_CONNECTION_STRING = $"Filename={DB_FILE};Connection=shared;";
 
-    public static LiteDatabase Connect()
-    {
-        return new LiteDatabase(DB_CONNECTION_STRING);
-    }
+    public static LiteDatabase Connection = new(DB_CONNECTION_STRING);
+
+    public static bool Commit() => Connection.Commit();
 
     public static void CreateBackup()
     {

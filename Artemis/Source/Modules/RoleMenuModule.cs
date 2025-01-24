@@ -1,4 +1,4 @@
-﻿using Database.Models;
+﻿using DB.Models;
 using NetCord;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
@@ -63,8 +63,7 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
     {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        var guildRoleMenus = GuildRoleMenus.Get(Context.Guild!.Id);
-        if (guildRoleMenus == null)
+        if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus))
         {
             await ModifyResponseAsync(msg =>
             {
@@ -77,7 +76,7 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
             return;
         }
 
-        if (!guildRoleMenus.RoleMenus.ContainsKey(roleMenuName))
+        if (!guildRoleMenus.RoleMenus.TryGetValue(roleMenuName, out GuildRoleMenus.RoleMenu? roleMenu))
         {
             await ModifyResponseAsync(msg =>
             {
@@ -90,7 +89,6 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
             return;
         }
 
-        var roleMenu = guildRoleMenus.RoleMenus[roleMenuName];
         if (roleMenu.RoleIds.Count == 0)
         {
             await ModifyResponseAsync(msg =>
@@ -167,9 +165,8 @@ public class RoleMenuAutocompleteProvider : IAutocompleteProvider<AutocompleteIn
     public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
     {
         var input = option.Value!;
-        var guildRoleMenus = GuildRoleMenus.Get(context.Guild!.Id);
 
-        if (guildRoleMenus == null)
+        if (!GuildRoleMenus.TryGet(context.Guild!.Id, out var guildRoleMenus))
             return new();
 
         var result = guildRoleMenus.RoleMenus.Keys
@@ -204,9 +201,7 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
     {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        var guildRoleMenus = GuildRoleMenus.Get(Context.Guild!.Id);
-
-        if (guildRoleMenus == null || guildRoleMenus.RoleMenus.Count == 0)
+        if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus) || guildRoleMenus.RoleMenus.Count == 0)
         {
             await ModifyResponseAsync(msg =>
             {
@@ -239,9 +234,7 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
     {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        var guildRoleMenus = GuildRoleMenus.Get(Context.Guild!.Id);
-
-        if (guildRoleMenus == null || guildRoleMenus.RoleMenus.Count == 0) {
+        if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus) || guildRoleMenus.RoleMenus.Count == 0) {
             await ModifyResponseAsync(msg =>
             {
                 msg.Embeds = [
@@ -273,7 +266,7 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
     {
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
-        var updatedMenu = GuildRoleMenus.Update(Context.Guild!.Id, roleMenus =>
+        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus =>
         {
             roleMenus.RoleMenus[name].MultiSelect = !roleMenus.RoleMenus[name].MultiSelect;
         });
@@ -301,9 +294,7 @@ public class RoleMenuModalModule : ComponentInteractionModule<ModalInteractionCo
         var name = Context.Components.OfType<TextInput>().First().Value;
 
         // Create a new role menu with the given name.
-        using var db = Database.Database.Connect();
-        var roleMenusCollection = GuildRoleMenus.GetCollection(db);
-        var roleMenus = GuildRoleMenus.GetOrCreateInCollection(Context.Guild!.Id, roleMenusCollection);
+        var roleMenus = GuildRoleMenus.GetOrCreate(Context.Guild!.Id);
 
         if (roleMenus.RoleMenus.ContainsKey(name))
         {
@@ -320,7 +311,7 @@ public class RoleMenuModalModule : ComponentInteractionModule<ModalInteractionCo
         }
 
         roleMenus.RoleMenus.Add(name, new());
-        roleMenusCollection.Update(roleMenus);
+        GuildRoleMenus.Upsert(roleMenus);
 
         var menuEditor = RoleMenuModule.GenerateMenuEditor(name, roleMenus.RoleMenus[name].RoleIds, roleMenus.RoleMenus[name].MultiSelect);
 
@@ -360,7 +351,7 @@ public class RoleMenuRoleMenuModule : ComponentInteractionModule<RoleMenuInterac
 
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
-        var updatedMenu = GuildRoleMenus.Update(Context.Guild!.Id, roleMenus =>
+        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus =>
         {
             roleMenus.RoleMenus[name].RoleIds = Context.SelectedRoles.Select(x => x.Id).ToList();
         });
@@ -389,7 +380,8 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
 
         var selectedRoles = Context.SelectedValues.Select(ulong.Parse).ToList();
 
-        var menu = GuildRoleMenus.Get(Context.Guild!.Id)?.RoleMenus[name];
+        GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus);
+        var menu = guildRoleMenus?.RoleMenus[name];
         var menuRoles = menu?.RoleIds.Select(id => Context.Guild!.Roles[id]).ToList();
         var member = await Context.Guild.GetUserAsync(Context.User.Id);
 
@@ -456,7 +448,8 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
 
         var selectedMenuName = Context.SelectedValues[0];
 
-        var menu = GuildRoleMenus.Get(Context.Guild!.Id)?.RoleMenus[selectedMenuName];
+        GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus);
+        var menu = guildRoleMenus?.RoleMenus[selectedMenuName];
 
         await ModifyResponseAsync(msg =>
         {
@@ -473,7 +466,7 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
 
         var selectedMenuName = Context.SelectedValues[0];
 
-        var updatedMenu = GuildRoleMenus.Update(Context.Guild!.Id, roleMenus =>
+        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus =>
         {
             roleMenus.RoleMenus.Remove(selectedMenuName);
         });

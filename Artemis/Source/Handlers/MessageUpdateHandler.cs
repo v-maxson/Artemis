@@ -1,4 +1,4 @@
-﻿using Database.Models;
+﻿using DB.Models;
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
@@ -17,8 +17,8 @@ public class MessageUpdateHandler(GatewayClient client, Cache.MessageCache cache
         if (currentMessage == null || currentMessage.Author.IsBot) return;
 
         // Get the guild settings.
-        var settings = GuildSettings.Get((ulong)currentMessage.GuildId!);
-        if (settings is null || settings.LogsChannelId == null || !settings.MessageEditLogsEnabled) return;
+        if (!GuildSettings.TryGet((ulong)currentMessage.GuildId!, out var settings)) return;
+        if (settings.LogsChannelId == null || !settings.MessageEditLogsEnabled) return;
 
         // Check if the message is cached.
         MessageCache.TryGetValue(currentMessage.Id, out Message previousMessage);

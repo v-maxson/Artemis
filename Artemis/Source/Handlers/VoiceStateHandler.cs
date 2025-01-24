@@ -1,4 +1,4 @@
-﻿using Database.Models;
+﻿using DB.Models;
 using Modules;
 using NetCord;
 using NetCord.Gateway;
@@ -32,13 +32,10 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
 
     private async Task CreateVoiceMasterChannel(VoiceState currentState)
     {
-        using var db = Database.Database.Connect();
-        var gsCollection = GuildSettings.GetCollection(db);
-
         // Get the settings for the current guild
         // If no settings are found or the current channel is not the VoiceMaster channel, return.
-        var guildSettings = GuildSettings.GetInCollection(currentState.GuildId, gsCollection);
-        if (guildSettings == null || guildSettings.VoiceMasterChannelId != currentState.ChannelId) return;
+        if (!GuildSettings.TryGet(currentState.GuildId, out var guildSettings)) return;
+        if (guildSettings.VoiceMasterChannelId != currentState.ChannelId) return;
 
         // Fetch the guild information from the client
         // If the guild is not found, log an error and exit the method
@@ -50,14 +47,13 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
             return;
         }
 
-        
+
         // Get the VoiceMaster settings for the current user, or create default settings if none exist
-        var userSettingsCollection = UserVoiceMasterSettings.GetCollection(db);
-        var userSettings = UserVoiceMasterSettings.GetInCollection(currentState.UserId, userSettingsCollection)
-                           ?? UserVoiceMasterSettings.Default(currentState.User!);
+        if (!UserVoiceMasterSettings.TryGet(currentState.UserId, out var userSettings)) 
+            userSettings =  UserVoiceMasterSettings.Default(currentState.User!);
 
         // Update (or insert) the user's settings in the database.
-        userSettingsCollection.Upsert(userSettings);
+        UserVoiceMasterSettings.Upsert(userSettings);
 
         // Get the current voice channel the user is in.
         var currentChannel = (VoiceGuildChannel)guild.Channels[(ulong)currentState.ChannelId!];
@@ -73,14 +69,13 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
                 .WithParentId(currentChannel.ParentId)
         );
 
-        var vmChannelsCollection = GuildVoiceMasterChannels.GetCollection(db);
-        var guildVmChannels = GuildVoiceMasterChannels.GetOrCreateInCollection(currentState.GuildId, vmChannelsCollection);
+        var guildVmChannels = GuildVoiceMasterChannels.GetOrCreate(currentState.GuildId);
 
         // Add the newly created channel to the guild's VoiceMaster channels.
         guildVmChannels.Channels[createdChannel.Id] = currentState.UserId;
 
         // Update the collection with the new channel information.
-        vmChannelsCollection.Update(guildVmChannels);
+        GuildVoiceMasterChannels.Upsert(guildVmChannels);
 
         // Move the user into the newly created channel.
         await currentState.User!.ModifyAsync(x => x.ChannelId = createdChannel.Id);
@@ -96,10 +91,8 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
 
     private async Task DeleteVoiceMasterChannel(VoiceState previousState)
     {
-        using var db = Database.Database.Connect();
-        var collection = GuildVoiceMasterChannels.GetCollection(db);
-        var guildVmChannels = GuildVoiceMasterChannels.GetInCollection(previousState.GuildId, collection);
-        if (guildVmChannels == null || !guildVmChannels.Channels.ContainsKey((ulong)previousState.ChannelId!)) return;
+        if (!GuildVoiceMasterChannels.TryGet(previousState.GuildId, out var guildVmChannels)) return;
+        if (!guildVmChannels.Channels.ContainsKey((ulong)previousState.ChannelId!)) return;
 
         // Retrieve the guild and its channels.
         var guild = await Client.Rest.GetGuildAsync(previousState.GuildId);
@@ -111,7 +104,7 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
         {
             await voiceChannel.DeleteAsync();
             guildVmChannels.Channels.Remove((ulong)previousState.ChannelId!);
-            collection.Update(guildVmChannels);
+            GuildVoiceMasterChannels.Upsert(guildVmChannels);
         }
     }
 }

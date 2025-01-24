@@ -1,4 +1,4 @@
-﻿namespace Database.Models;
+﻿namespace DB.Models;
 
 internal class GuildModeration : DatabaseModel<GuildModeration>
 {

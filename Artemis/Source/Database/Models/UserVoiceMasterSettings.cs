@@ -1,6 +1,6 @@
 ﻿using NetCord;
 
-namespace Database.Models;
+namespace DB.Models;
 
 internal class UserVoiceMasterSettings : DatabaseModel<UserVoiceMasterSettings>
 {

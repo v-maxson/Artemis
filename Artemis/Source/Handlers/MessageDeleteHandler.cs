@@ -1,4 +1,4 @@
-﻿using Database.Models;
+﻿using DB.Models;
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
@@ -17,8 +17,8 @@ public class MessageDeleteHandler(GatewayClient client, Cache.MessageCache cache
         if (messageDelete == null) return;
 
         // Get the guild settings.
-        var settings = GuildSettings.Get((ulong)messageDelete.GuildId!);
-        if (settings is null || settings.LogsChannelId == null || !settings.MessageDeleteLogsEnabled) return;
+        if(!GuildSettings.TryGet((ulong)messageDelete.GuildId!, out var settings)) return;
+        if (settings.LogsChannelId == null || !settings.MessageDeleteLogsEnabled) return;
 
         // Check if the message is cached.
         if (!MessageCache.TryGetValue(messageDelete.MessageId, out Message message)) return;

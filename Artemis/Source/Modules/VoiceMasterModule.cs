@@ -1,4 +1,4 @@
-﻿using Database.Models;
+﻿using DB.Models;
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Rest;
@@ -100,7 +100,7 @@ public class VoiceMasterButtonModule : ComponentInteractionModule<ButtonInteract
     [ComponentInteraction(DisableButtonId)]
     public async Task DisableAsync()
     {
-        GuildSettings.Update(Context.Guild!.Id, x => x.VoiceMasterChannelId = null);
+        GuildSettings.Upsert(Context.Guild!.Id, x => x.VoiceMasterChannelId = null);
 
         await RespondAsync(
             InteractionCallback.Message(
@@ -162,17 +162,12 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
 
     private async Task HandleModalAsync(string input, bool isName)
     {
-        using var db = Database.Database.Connect();
-        var userVmSettingsCollection = UserVoiceMasterSettings.GetCollection(db);
-        var userSettings = UserVoiceMasterSettings.GetInCollection(Context.User!.Id, userVmSettingsCollection);
-        var vmChannelsCollection = GuildVoiceMasterChannels.GetCollection(db);
-        var guildVmChannels = GuildVoiceMasterChannels.GetOrCreateInCollection(Context.Guild!.Id, vmChannelsCollection);
-
-        if (userSettings == null)
+        if (!UserVoiceMasterSettings.TryGet(Context.User!.Id, out var userSettings))
         {
             userSettings = UserVoiceMasterSettings.Default(Context.User!);
-            userVmSettingsCollection.Insert(userSettings);
+            UserVoiceMasterSettings.Upsert(userSettings);
         }
+        var guildVmChannels = GuildVoiceMasterChannels.GetOrCreate(Context.Guild!.Id);
 
         // Change the user's settings.
         if (isName)
@@ -183,7 +178,7 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
         {
             userSettings.ChannelLimit = int.Parse(input);
         }
-        userVmSettingsCollection.Update(userSettings);
+        UserVoiceMasterSettings.Upsert(userSettings);
 
         var guild = await Context.Client.GetOrFetchGuildAsync(Context.Guild!.Id);
         var guildUser = await guild!.GetUserAsync(Context.User!.Id)!;
@@ -287,7 +282,7 @@ public class VoiceMasterChannelMenuModule : ComponentInteractionModule<ChannelMe
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
         var channel = Context.SelectedChannels[0]; // There should only ever be one channel selected.
-        GuildSettings.Update(Context.Guild!.Id, x => x.VoiceMasterChannelId = channel.Id);
+        GuildSettings.Upsert(Context.Guild!.Id, x => x.VoiceMasterChannelId = channel.Id);
 
         await ModifyResponseAsync(msg =>
         {

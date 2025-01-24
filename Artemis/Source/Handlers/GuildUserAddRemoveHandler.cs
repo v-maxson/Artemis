@@ -1,7 +1,7 @@
 ﻿using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord;
-using Database.Models;
+using DB.Models;
 using NetCord.Rest;
 
 namespace Handlers;
@@ -14,8 +14,7 @@ public class GuildUserAddHandler(GatewayClient client) : IGatewayEventHandler<Gu
     public async ValueTask HandleAsync(GuildUser user)
     {
         // Get the guild settings.
-        var settings = GuildSettings.Get(user.GuildId);
-        if (settings == null) return;
+        if (!GuildSettings.TryGet(user.GuildId, out var settings)) return;
 
         await Task.WhenAll(
             // Send logs.
@@ -83,8 +82,7 @@ public class GuildUserRemoveHandler(GatewayClient client) : IGatewayEventHandler
     public async ValueTask HandleAsync(GuildUserRemoveEventArgs userLeft)
     {
         // Get the guild settings.
-        var settings = GuildSettings.Get(userLeft.GuildId);
-        if (settings == null) return;
+        if (!GuildSettings.TryGet(userLeft.GuildId, out var settings)) return;
 
         // Send Logs.
         await SendLogAsync(userLeft, settings);

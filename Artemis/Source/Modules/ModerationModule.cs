@@ -1,4 +1,4 @@
-﻿using Database.Models;
+﻿using DB.Models;
 using NetCord;
 using NetCord.Rest;
 using NetCord.Services;
@@ -394,8 +394,8 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         };
 
         // If the guild has a logs channel and moderation logs are enabled, send the infraction there.
-        var guildSettings = GuildSettings.Get(Context.Guild!.Id);
-        if (guildSettings != null && guildSettings.LogsChannelId != null && guildSettings.ModerationLogsEnabled)
+        if (GuildSettings.TryGet(Context.Guild!.Id, out var guildSettings)) return;
+        if (guildSettings.LogsChannelId != null && guildSettings.ModerationLogsEnabled)
         {
             var channel = Context.Guild.Channels[guildSettings.LogsChannelId!.Value];
             if (channel is TextGuildChannel textChannel)
@@ -429,7 +429,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             }
         }
 
-        GuildModeration.Update(Context.Guild!.Id, gm =>
+        GuildModeration.Upsert(Context.Guild!.Id, gm =>
         {
             gm.ModeratedUsers.TryGetValue(userId, out var infractions);
             if (infractions == null)

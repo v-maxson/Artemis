@@ -1,4 +1,4 @@
-﻿using Database.Models;
+﻿using DB.Models;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord;
@@ -16,7 +16,7 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
     private async Task HandleSettingAsync(string description, Action<GuildSettings> updateAction)
     {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
-        GuildSettings.Update(Context.Guild!.Id, updateAction);
+        GuildSettings.Upsert(Context.Guild!.Id, updateAction);
         await ModifyResponseAsync(msg =>
         {
             msg.Embeds = [

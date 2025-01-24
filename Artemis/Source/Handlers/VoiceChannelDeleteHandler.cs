@@ -2,7 +2,7 @@
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
-using Database.Models;
+using DB.Models;
 
 namespace Handlers;
 
@@ -14,16 +14,14 @@ public class VoiceChannelDeleteHandler : IGatewayEventHandler<IGuildChannel>
         // If the channel is not a voice channel, return.
         if (channel is not VoiceGuildChannel voiceChannel) return default;
 
-        using var db = Database.Database.Connect();
-        var channelsCollection = GuildVoiceMasterChannels.GetCollection(db);
-        var guildVmChannels = GuildVoiceMasterChannels.GetInCollection(voiceChannel.GuildId, channelsCollection);
-        if (guildVmChannels is null) return default;
+        
+        if (!GuildVoiceMasterChannels.TryGet(voiceChannel.GuildId, out var guildVmChannels)) return default;
 
         // If guildVmChannels includes the channel, delete it from the collection.
-        if (guildVmChannels.Channels.TryGetValue(voiceChannel.Id, out ulong channelOwnerId))
+        if (guildVmChannels.Channels.TryGetValue(voiceChannel.Id, out _))
         {
             guildVmChannels.Channels.Remove(voiceChannel.Id);
-            channelsCollection.Update(guildVmChannels);
+            GuildVoiceMasterChannels.Upsert(guildVmChannels);
         }
 
         return default;

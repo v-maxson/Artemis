@@ -1,124 +1,102 @@
 ﻿using System.Linq.Expressions;
 using LiteDB;
 
-namespace Database.Models;
+namespace DB.Models;
 
 internal abstract class DatabaseModel<T>
     where T : DatabaseModel<T>
 {
+    private static ILiteCollection<T> Collection => Database.Connection.GetCollection<T>(typeof(T).Name);
+
     [BsonId]
     public required ulong Id { get; set; }
     public ulong? SecondaryId { get; set; }
 
-    public static T? Get(Expression<Func<T, bool>> predicate)
+    public static BsonValue Create(T value)
     {
-        using var db = Database.Connect();
-        var collection = GetCollection(db);
-
-        return GetInCollection(predicate, collection);
+        var id = Collection.Insert(value);
+        Database.Commit();
+        return id;
     }
 
-    public static T? Get(ulong id, ulong? secondaryId = null)
+    public static T Upsert(ulong id, Action <T> action)
     {
-        using var db = Database.Connect();
-        var collection = GetCollection(db);
-
-        return GetInCollection(id, collection, secondaryId);
+        return Upsert(id, null, action);
     }
 
-    public static T GetOrCreate(Expression<Func<T, bool>> predicate)
+    public static T Upsert(ulong id, ulong? secondaryId, Action <T> action)
     {
-        using var db = Database.Connect();
-        var collection = GetCollection(db);
+        var entity = GetOrCreate(id, secondaryId);
+        action(entity);
+        Collection.Update(entity);
+        Database.Commit();
+        return entity;
+    }
 
-        return GetOrCreateInCollection(predicate, collection);
+    public static T Upsert(T value)
+    {
+        Collection.Upsert(value);
+        Database.Commit();
+        return value;
+    }
+
+    public static bool TryGet(Expression<Func<T, bool>> predicate, out T value)
+    {
+        var search = Collection.FindOne(predicate);
+        if (search != null)
+        {
+            value = search;
+            return true;
+        }
+        else
+        {
+            value = null!;
+            return false;
+        }
+    }
+
+    public static bool TryGet(ulong id, out T value)
+    {
+        T? search = Collection.FindOne(x => x.Id == id);
+        if (search != null)
+        {
+            value = search;
+            return true;
+        }
+        else
+        {
+            value = null!;
+            return false;
+        }
+    }
+
+    public static bool TryGet(ulong id, ulong? secondaryId, out T value)
+    {
+        T? search = Collection.FindOne(x => x.Id == id && x.SecondaryId == secondaryId);
+
+        if (search != null)
+        {
+            value = search;
+            return true;
+        }
+        else
+        {
+            value = null!;
+            return false;
+        }
     }
 
     public static T GetOrCreate(ulong id, ulong? secondaryId = null)
     {
-        using var db = Database.Connect();
-        var collection = GetCollection(db);
-
-        return GetOrCreateInCollection(id, collection, secondaryId);
-    }
-
-    public static BsonValue Create(T value)
-    {
-        using var db = Database.Connect();
-        var collection = GetCollection(db);
-
-        return collection.Insert(value);
-    }
-
-    public static T Update(ulong id, Action <T> action)
-    {
-        return Update(id, null, action);
-    }
-
-    public static T Update(ulong id, ulong? secondaryId, Action <T> action)
-    {
-        using var db = Database.Connect();
-        var collection = GetCollection(db);
-        var entity = GetOrCreateInCollection(id, collection, secondaryId);
-        action(entity);
-        collection.Update(entity);
-        return entity;
-    }
-
-    public static T Update(Expression<Func<T, bool>> predicate, Action<T> action)
-    {
-        using var db = Database.Connect();
-        var collection = GetCollection(db);
-        var entity = GetOrCreateInCollection(predicate, collection);
-        action(entity);
-        collection.Update(entity);
-        return entity;
-    }
-
-    public static ILiteCollection<T> GetCollection(LiteDatabase db)
-    {
-        return db.GetCollection<T>(typeof(T).Name);
-    }
-
-    public static T? GetInCollection(Expression<Func<T, bool>> predicate, ILiteCollection<T> collection)
-    {
-        return collection.FindOne(predicate);
-    }
-
-    public static T? GetInCollection(ulong id, ILiteCollection<T> collection, ulong? secondaryId = null)
-    {
-        if (secondaryId.HasValue)
-        {
-            return collection.FindOne(x => x.Id == id && x.SecondaryId == secondaryId);
-        }
-        else
-        {
-            return collection.FindOne(x => x.Id == id);
-        }
-    }
-
-    public static T GetOrCreateInCollection(Expression<Func<T, bool>> predicate, ILiteCollection<T> collection)
-    {
-        var entity = GetInCollection(predicate, collection);
-        if (entity == null)
-        {
-            entity = Activator.CreateInstance<T>();
-            collection.Insert(entity);
-            return entity;
-        }
-        else return entity;
-    }
-
-    public static T GetOrCreateInCollection(ulong id, ILiteCollection<T> collection, ulong? secondaryId = null)
-    {
-        var entity = GetInCollection(id, collection, secondaryId);
+        TryGet(id, secondaryId, out var entity);
 
         if (entity == null)
         {
             entity = Activator.CreateInstance<T>();
             entity.Id = id;
             entity.SecondaryId = secondaryId;
-            collection.Insert(entity);
+            Collection.Insert(entity);
+            Database.Commit();
             return entity;
         }
         else return entity;
