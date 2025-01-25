@@ -37,7 +37,10 @@ builder.Services
         options.Intents = GatewayIntents.All;
     })
     .AddGatewayEventHandlers(typeof(Program).Assembly)
-    .AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>()
+    .AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(options => {
+        options.DefaultContexts = [InteractionContextType.Guild];
+        options.ResultHandler = new Handlers.ApplicationCommandResultHandler<ApplicationCommandContext>();
+    })
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
     .AddComponentInteractions<UserMenuInteraction, UserMenuInteractionContext>()
