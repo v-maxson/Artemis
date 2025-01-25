@@ -1,6 +1,6 @@
 ﻿using NetCord;
 
-namespace DB.Models;
+namespace Artemis.DB.Models;
 
 internal class UserVoiceMasterSettings : DatabaseModel<UserVoiceMasterSettings>
 {

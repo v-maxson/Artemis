@@ -1,4 +1,4 @@
-﻿using DB.Models;
+﻿using Artemis.DB.Models;
 using Modules;
 using NetCord;
 using NetCord.Gateway;

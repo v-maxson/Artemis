@@ -1,4 +1,4 @@
-﻿namespace DB.Models;
+﻿namespace Artemis.DB.Models;
 
 internal class GuildSettings : DatabaseModel<GuildSettings>
 {

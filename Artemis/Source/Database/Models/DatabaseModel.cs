@@ -1,15 +1,15 @@
 ﻿using System.Linq.Expressions;
 using LiteDB;
 
-namespace DB.Models;
+namespace Artemis.DB.Models;
 
-internal abstract class DatabaseModel<T>
+public abstract class DatabaseModel<T>
     where T : DatabaseModel<T>
 {
     private static ILiteCollection<T> Collection => Database.Connection.GetCollection<T>(typeof(T).Name);
 
     [BsonId]
-    public required ulong Id { get; set; }
+    public ulong Id { get; set; }
     public ulong? SecondaryId { get; set; }
 
     public static BsonValue Create(T value) {

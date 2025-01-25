@@ -1,4 +1,4 @@
-﻿using DB.Models;
+﻿using Artemis.DB.Models;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord;

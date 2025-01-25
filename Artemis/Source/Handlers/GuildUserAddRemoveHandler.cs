@@ -1,7 +1,7 @@
 ﻿using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord;
-using DB.Models;
+using Artemis.DB.Models;
 using NetCord.Rest;
 
 namespace Handlers;

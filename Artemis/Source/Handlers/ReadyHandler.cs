@@ -1,5 +1,4 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Hangfire;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
@@ -26,7 +25,7 @@ public class ReadyHandler(GatewayClient client, Config config, Stopwatch stopwat
 
         // Hangfire Jobs.
         RecurringJob.AddOrUpdate("SetRandomPresence", () => SetRandomPresenceAsync(), Cron.Minutely);
-        RecurringJob.AddOrUpdate("Database Backup", () => DB.Database.CreateBackup(), Cron.Daily);
+        RecurringJob.AddOrUpdate("Database Backup", () => Artemis.DB.Database.CreateBackup(), Cron.Daily);
     }
 
     public async Task SetRandomPresenceAsync() {

@@ -1,6 +1,6 @@
 ﻿using LiteDB;
 
-namespace DB;
+namespace Artemis.DB;
 
 internal static class Database
 {
