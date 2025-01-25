@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using Artemis.DB.Models;
+using LiteDB;
 using NetCord;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
@@ -126,19 +127,19 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
         var collections = db.GetCollectionNames();
 
         // Get each collection.
-        var items = db.GetCollection<NWDB.Entity>("items").Count();
-        var mounts = db.GetCollection<NWDB.Entity>("mounts").Count();
-        var recipes = db.GetCollection<NWDB.Entity>("recipes").Count();
-        var abilities = db.GetCollection<NWDB.Entity>("abilities").Count();
-        var perks = db.GetCollection<NWDB.Entity>("perks").Count();
-        var statusEffects = db.GetCollection<NWDB.Entity>("statuseffects").Count();
-        var quests = db.GetCollection<NWDB.Entity>("quests").Count();
-        var creatures = db.GetCollection<NWDB.Entity>("creatures").Count();
-        var gatherables = db.GetCollection<NWDB.Entity>("gatherables").Count();
-        var shops = db.GetCollection<NWDB.Entity>("shops").Count();
-        var npcs = db.GetCollection<NWDB.Entity>("npcs").Count();
-        var zones = db.GetCollection<NWDB.Entity>("zones").Count();
-        var total = collections.Sum(c => db.GetCollection<NWDB.Entity>(c).Count());
+        var items = db.GetCollection<NwdbEntity>("items").Count();
+        var mounts = db.GetCollection<NwdbEntity>("mounts").Count();
+        var recipes = db.GetCollection<NwdbEntity>("recipes").Count();
+        var abilities = db.GetCollection<NwdbEntity>("abilities").Count();
+        var perks = db.GetCollection<NwdbEntity>("perks").Count();
+        var statusEffects = db.GetCollection<NwdbEntity>("statuseffects").Count();
+        var quests = db.GetCollection<NwdbEntity>("quests").Count();
+        var creatures = db.GetCollection<NwdbEntity>("creatures").Count();
+        var gatherables = db.GetCollection<NwdbEntity>("gatherables").Count();
+        var shops = db.GetCollection<NwdbEntity>("shops").Count();
+        var npcs = db.GetCollection<NwdbEntity>("npcs").Count();
+        var zones = db.GetCollection<NwdbEntity>("zones").Count();
+        var total = collections.Sum(c => db.GetCollection<NwdbEntity>(c).Count());
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
@@ -181,7 +182,7 @@ static class NWDBAutoCompleteProvider
         string collectionName) {
         var input = option.Value!;
 
-        var items = DB.GetCollection<NWDB.Entity>(collectionName);
+        var items = DB.GetCollection<NwdbEntity>(collectionName);
         var result = items.Find(d => d.Name.Contains(input), limit: 25).Take(25)
             .Select(d => new ApplicationCommandOptionChoiceProperties(d.Name, d.Url));
 

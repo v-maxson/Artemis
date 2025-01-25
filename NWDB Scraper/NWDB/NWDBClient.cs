@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using LiteDB;
+using Artemis.DB.Models;
 
 namespace NWDB;
 
@@ -37,7 +38,7 @@ public class NWDBClient
         };
     }
 
-    public async Task<IEnumerable<Entity>> GetEntitiesAsync(string url) {
+    public async Task<IEnumerable<NwdbEntity>> GetEntitiesAsync(string url) {
 
         var doc = await HtmlWeb.LoadFromWebAsync(url);
 
@@ -47,13 +48,13 @@ public class NWDBClient
             .QuerySelector("tbody.align-middle") // Table body containing the items.
             .QuerySelectorAll("tr"); // Rows containing the items.
 
-        var items = new List<Entity>();
+        var items = new List<NwdbEntity>();
 
         foreach (var docItem in tableContents) {
             var itemEllipsis = docItem
                 .QuerySelector("td.ellipsis") // Item name box.
                 .QuerySelector("a.table-item-name");
-            var item = new Entity() {
+            var item = new NwdbEntity() {
                 Name = itemEllipsis.InnerText,
                 Url = Constants.BaseUrl + itemEllipsis.GetAttributeValue("href", "")
             };
@@ -66,9 +67,9 @@ public class NWDBClient
 
     internal async Task AddEntitiesToDb(LiteDatabase db, string collectionName, int pageCount) {
         /// "status-effects" is a special case.
-        ILiteCollection<Entity> items;
-        if (collectionName == "status-effects") items = db.GetCollection<Entity>("statuseffects");
-        else items = db.GetCollection<Entity>(collectionName);
+        ILiteCollection<NwdbEntity> items;
+        if (collectionName == "status-effects") items = db.GetCollection<NwdbEntity>("statuseffects");
+        else items = db.GetCollection<NwdbEntity>(collectionName);
 
         for (int i = 1; i <= pageCount; i++) {
             var pageItems = await GetEntitiesAsync(Constants.PageUrl(collectionName, i));

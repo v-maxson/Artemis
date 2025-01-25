@@ -28,10 +28,4 @@
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NWDB Scraper\NWDB Scraper.csproj">
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
-
 </Project>
