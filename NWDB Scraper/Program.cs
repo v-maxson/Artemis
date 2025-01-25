@@ -28,21 +28,30 @@ var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 // Batch these to avoid rate limit.
 await Task.WhenAll(
     client.AddEntitiesToDb(db, "items", ItemsPageCount),
-    client.AddEntitiesToDb(db, "mounts", MountsPageCount),
+    client.AddEntitiesToDb(db, "mounts", MountsPageCount)
+);
+
+await Task.WhenAll(
     client.AddEntitiesToDb(db, "recipes", RecipesPageCount),
     client.AddEntitiesToDb(db, "abilities", AbilitiesPageCount)
 );
 
 await Task.WhenAll(
     client.AddEntitiesToDb(db, "perks", PerksPageCount),
-    client.AddEntitiesToDb(db, "status-effects", StatusEffectsPageCount),
+    client.AddEntitiesToDb(db, "status-effects", StatusEffectsPageCount)
+);
+
+await Task.WhenAll(
     client.AddEntitiesToDb(db, "quests", QuestsPageCount),
     client.AddEntitiesToDb(db, "creatures", CreaturesPageCount)
 );
 
 await Task.WhenAll(
     client.AddEntitiesToDb(db, "gatherables", GatherablesPageCount),
-    client.AddEntitiesToDb(db, "shops", ShopsPageCount),
+    client.AddEntitiesToDb(db, "shops", ShopsPageCount)
+);
+
+await Task.WhenAll(
     client.AddEntitiesToDb(db, "npcs", NPCSPageCount),
     client.AddEntitiesToDb(db, "zones", ZonesPageCount)
 );

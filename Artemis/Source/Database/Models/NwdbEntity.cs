@@ -2,6 +2,9 @@ namespace Artemis.DB.Models;
 
 public class NwdbEntity : DatabaseModel<NwdbEntity>
 {
+    [LiteDB.BsonId]
+    public new int Id { get; set; }
+
     /// <summary>
     /// The nwdb.info URL for the item.
     /// </summary>

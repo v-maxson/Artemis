@@ -10,9 +10,10 @@ public class NWDBClient
     {
         public const string BaseUrl = "https://nwdb.info";
 
-        public static string PageUrl(string collection, int page) => $"{BaseUrl}/db/{collection}/page/{page}?sort=name_asc";
+        public static string PageUrl(string collection, int page) => $"{BaseUrl}/db/{collection}/page/{page}";
     }
 
+    private ConcurrentBool RateLimited = new();
     private readonly HtmlWeb HtmlWeb = new();
     private readonly Random Random = new();
 
@@ -33,18 +34,38 @@ public class NWDBClient
                 "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:62.0) Gecko/20100101 Firefox/62.0"
                 ];
 
-            request.Headers.Add("User-Agent", headers[Random.Next(0, headers.Length)]);
+            request.Headers.Set("User-Agent", headers[Random.Next(0, headers.Length)]);
             return true;
+        };
+
+        // Detect rate limit.
+        HtmlWeb.PostResponse += (request, response) => {
+            Console.WriteLine("Response status code: {0}", response.StatusCode);
+            if (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests) return;
+
+            RateLimited.Value = true;
         };
     }
 
     public async Task<IEnumerable<NwdbEntity>> GetEntitiesAsync(string url) {
+        if (RateLimited.Value) {
+            Console.WriteLine("Rate limit exceeded. Waiting 10 seconds.");
+            await Task.Delay(10000);
+            RateLimited.Value = false;
+        }
 
         var doc = await HtmlWeb.LoadFromWebAsync(url);
 
         // Get the items.
-        var tableContents = doc.DocumentNode
-            .QuerySelector("div.table-responsive") // Table containing the items.
+        var tableReponsive = doc.DocumentNode.QuerySelector("div.table-responsive"); // Table containing the items.
+        if (tableReponsive == null) {
+            // Wait 10 seconds and attempt to fetch this page again.
+            Console.WriteLine($"Rate Limited (?) on \"{url}\". Waiting 10 seconds...");
+            await Task.Delay(10000);
+            return await GetEntitiesAsync(url);
+        }
+
+        var tableContents = tableReponsive
             .QuerySelector("tbody.align-middle") // Table body containing the items.
             .QuerySelectorAll("tr"); // Rows containing the items.
 
