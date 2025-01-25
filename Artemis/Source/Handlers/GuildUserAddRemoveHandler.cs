@@ -55,16 +55,17 @@ public class GuildUserAddHandler(GatewayClient client) : IGatewayEventHandler<Gu
         await ((TextGuildChannel)logsChannel).SendMessageAsync(
             new MessageProperties().WithEmbeds(
                 [
-                    new EmbedProperties()
-                        .WithColor(Colors.Green)
-                        .WithTitle("User Joined")
-                        .WithFields([
-                            new EmbedFieldProperties().WithName("User:").WithValue(user.ToString()),
-                            new EmbedFieldProperties().WithName("ID:").WithValue(user.Id.ToString()),
-                            new EmbedFieldProperties().WithName("Created At:").WithValue($"<t:{user.CreatedAt.ToUnixTimeSeconds()}>")
-                        ])
-                        .WithThumbnail(thumbnail == null ? null : new EmbedThumbnailProperties(thumbnail.ToString()))
-                        .WithTimestamp(DateTimeOffset.UtcNow)
+                    EmbedHelper.Embed(
+                        title: "User Joined",
+                        fields: [
+                            EmbedHelper.Field("User:", user.ToString()),
+                            EmbedHelper.Field("ID:", user.Id.ToString()),
+                            EmbedHelper.Field("Created At:", $"<t:{user.CreatedAt.ToUnixTimeSeconds()}>")
+                        ],
+                        thumbnail: thumbnail == null ? null : EmbedHelper.Thumbnail(thumbnail.ToString()),
+                        timestamp: DateTimeOffset.UtcNow,
+                        color: Colors.Green
+                    )
                 ]
             )
         );
@@ -100,16 +101,17 @@ public class GuildUserRemoveHandler(GatewayClient client) : IGatewayEventHandler
         await ((TextGuildChannel)logsChannel).SendMessageAsync(
             new MessageProperties().WithEmbeds(
                 [
-                    new EmbedProperties()
-                        .WithColor(Colors.Red)
-                        .WithTitle("User Left")
-                        .WithFields([
-                            new EmbedFieldProperties().WithName("User:").WithValue($"{userLeft.User} ({userLeft.User.Username}{(userLeft.User.Discriminator == 0 ? "" : $"#{userLeft.User.Discriminator}")})"),
-                            new EmbedFieldProperties().WithName("ID:").WithValue(userLeft.User.Id.ToString()),
-                            new EmbedFieldProperties().WithName("Created At:").WithValue($"<t:{userLeft.User.CreatedAt.ToUnixTimeSeconds()}>")
-                        ])
-                        .WithThumbnail(thumbnail == null ? null : new EmbedThumbnailProperties(thumbnail.ToString()))
-                        .WithTimestamp(DateTimeOffset.UtcNow)
+                    EmbedHelper.Embed(
+                        title: "User Left",
+                        fields: [
+                            EmbedHelper.Field("User:", $"{userLeft.User} ({userLeft.User.Username}{(userLeft.User.Discriminator == 0 ? "" : $"#{userLeft.User.Discriminator}")})"),
+                            EmbedHelper.Field("ID:", userLeft.User.Id.ToString()),
+                            EmbedHelper.Field("Created At:", $"<t:{userLeft.User.CreatedAt.ToUnixTimeSeconds()}>")
+                        ],
+                        thumbnail: thumbnail == null ? null : EmbedHelper.Thumbnail(thumbnail.ToString()),
+                        timestamp: DateTimeOffset.UtcNow,
+                        color: Colors.Red
+                    )
                 ]
             )
         );

@@ -31,9 +31,10 @@ public partial class ModerationHistoryModule : ApplicationCommandModule<Applicat
         if (!guildModeration.ModeratedUsers.TryGetValue(user.Id, out var infractions) || infractions.Count == 0) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                        .WithDescription($"<@{user.Id}> has no moderation history!")
-                        .WithColor(Colors.Green)
+                    EmbedHelper.Embed(
+                        description: $"<@{user.Id}> has no moderation history!",
+                        color: Colors.Green
+                    )
                 ];
             });
             return;
@@ -48,20 +49,22 @@ public partial class ModerationHistoryModule : ApplicationCommandModule<Applicat
 
         foreach (var infraction in infractionChunk) {
             embedFields.Add(
-                new EmbedFieldProperties()
-                .WithName($"{infraction.InfractionType}")
-                .WithValue($" - **Reason**: {infraction.Reason}\n - **Moderator**: <@{infraction.ModeratorId}>\n - **Occured**: <t:{((DateTimeOffset)infraction.Timestamp).ToUnixTimeSeconds()}>")
+                EmbedHelper.Field(
+                    $"{infraction.InfractionType}",
+                    $" - **Reason**: {infraction.Reason}\n - **Moderator**: <@{infraction.ModeratorId}>\n - **Occured**: <t:{((DateTimeOffset)infraction.Timestamp).ToUnixTimeSeconds()}>"
+                )
             );
         }
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                    .WithTitle($"Moderation History for {user.Nickname}")
-                    .WithFields(embedFields)
-                    .WithColor(Colors.Blue)
-                    .WithThumbnail(new EmbedThumbnailProperties(user.GetAvatarUrl() == null ? null : user.GetAvatarUrl()!.ToString()))
-                    .WithFooter(new EmbedFooterProperties().WithText($"Page {validPage}/{infractionsChunks.Count}"))
+                EmbedHelper.Embed(
+                    title: $"Moderation History for {user.Nickname}",
+                    fields: embedFields,
+                    color: Colors.Blue,
+                    thumbnail: new EmbedThumbnailProperties(user.GetAvatarUrl()?.ToString()),
+                    footer: EmbedHelper.Footer($"Page {validPage}/{infractionsChunks.Count}")
+                )
             ];
         });
     }
@@ -95,9 +98,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                    .WithDescription($"Done!")
-                    .WithColor(Colors.Green)
+                EmbedHelper.Embed(
+                    description: $"Done!",
+                    color: Colors.Green
+                )
             ];
         });
         if (!silent) {
@@ -105,17 +109,19 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
                 new InteractionMessageProperties()
                 .WithContent($"<@{user.Id}>")
                 .WithEmbeds([
-                    new EmbedProperties()
-                        .WithDescription($"You have been warned for **{reason}**.")
-                        .WithColor(Colors.Orange)
-                    ])
-                );
+                    EmbedHelper.Embed(
+                        description: $"<@{user.Id}> has been warned for **{reason}**.",
+                        color: Colors.Orange
+                    )
+                ])
+            );
         }
         if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
-                new EmbedProperties()
-                    .WithDescription($"You have been warned in **{Context.Guild!.Name}** for **{reason}**.")
-                    .WithColor(Colors.Orange)
+                EmbedHelper.Embed(
+                    description: $"You have been warned in **{Context.Guild!.Name}** for **{reason}**.",
+                    color: Colors.Orange
+                )
             ]));
         }
     }
@@ -171,9 +177,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         catch (Exception e) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                        .WithDescription($"Failed to timeout <@{user.Id}>: {e.Message}")
-                        .WithColor(Colors.Red)
+                    EmbedHelper.Embed(
+                        description: $"Failed to timeout <@{user.Id}>: {e.Message}",
+                        color: Colors.Red
+                    )
                 ];
             });
             return;
@@ -183,9 +190,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                    .WithDescription($"Done!")
-                    .WithColor(Colors.Green)
+                EmbedHelper.Embed(
+                    description: $"Done!",
+                    color: Colors.Green
+                )
             ];
         });
 
@@ -194,18 +202,20 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
                 new InteractionMessageProperties()
                 .WithContent($"<@{user.Id}>")
                 .WithEmbeds([
-                    new EmbedProperties()
-                    .WithDescription($"You have been timed out for ***{GetDurationString(duration)}*** for **{reason}**.")
-                    .WithColor(Colors.Orange)
+                    EmbedHelper.Embed(
+                        description: $"You have been timed out for ***{GetDurationString(duration)}*** for **{reason}**.",
+                        color: Colors.Orange
+                    )
                 ])
             );
         }
 
         if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
-                new EmbedProperties()
-                    .WithDescription($"You have been timed out in **{Context.Guild!.Name}** for ***{GetDurationString(duration)}*** for **{reason}**.")
-                    .WithColor(Colors.Orange)
+                EmbedHelper.Embed(
+                    description: $"You have been timed out in **{Context.Guild!.Name}** for ***{GetDurationString(duration)}*** for **{reason}**.",
+                    color: Colors.Orange
+                )
             ]));
         }
     }
@@ -232,11 +242,11 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
-                new EmbedProperties()
-                .WithDescription($"You have been kicked from **{Context.Guild!.Name}** for **{reason}**.")
-                .WithColor(Colors.Orange)
-                ]
-            ));
+                EmbedHelper.Embed(
+                    description: $"You have been kicked from **{Context.Guild!.Name}** for **{reason}**.",
+                    color: Colors.Orange
+                )
+            ]));
         }
 
         try {
@@ -245,9 +255,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         catch (Exception e) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                        .WithDescription($"Failed to kick <@{user.Id}>: {e.Message}")
-                        .WithColor(Colors.Red)
+                    EmbedHelper.Embed(
+                        description: $"Failed to kick <@{user.Id}>: {e.Message}",
+                        color: Colors.Red
+                    )
                 ];
             });
             return;
@@ -257,9 +268,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                    .WithDescription($"Done!")
-                    .WithColor(Colors.Green)
+                EmbedHelper.Embed(
+                    description: $"Done!",
+                    color: Colors.Green
+                )
             ];
         });
 
@@ -267,9 +279,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             await FollowupAsync(
                 new InteractionMessageProperties()
                 .WithEmbeds([
-                    new EmbedProperties()
-                        .WithDescription($"<@{user.Id}> has been kicked for **{reason}**.")
-                        .WithColor(Colors.Orange)
+                    EmbedHelper.Embed(
+                        description: $"<@{user.Id}> has been kicked for **{reason}**.",
+                        color: Colors.Orange
+                    )
                 ])
             );
         }
@@ -311,11 +324,11 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
-                new EmbedProperties()
-                .WithDescription($"You have been banned from **{Context.Guild!.Name}** for **{reason}**.")
-                .WithColor(Colors.Orange)
-                ]
-            ));
+                EmbedHelper.Embed(
+                    description: $"You have been banned from **{Context.Guild!.Name}** for **{reason}**.",
+                    color: Colors.Orange
+                )
+            ]));
         }
 
         try {
@@ -324,9 +337,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         catch (Exception e) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                        .WithDescription($"Failed to ban <@{user.Id}>: {e.Message}")
-                        .WithColor(Colors.Red)
+                    EmbedHelper.Embed(
+                        description: $"Failed to ban <@{user.Id}>: {e.Message}",
+                        color: Colors.Red
+                    )
                 ];
             });
             return;
@@ -336,18 +350,20 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                    .WithDescription($"Done!")
-                    .WithColor(Colors.Green)
+                EmbedHelper.Embed(
+                    description: $"Done!",
+                    color: Colors.Green
+                )
             ];
         });
 
         await FollowupAsync(
             new InteractionMessageProperties()
             .WithEmbeds([
-                new EmbedProperties()
-                    .WithDescription($"<@{user.Id}> has been banned for **{reason}**.")
-                    .WithColor(Colors.Red)
+                EmbedHelper.Embed(
+                    description: $"<@{user.Id}> has been banned for **{reason}**.",
+                    color: Colors.Red
+                )
             ])
         );
     }
@@ -366,30 +382,22 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             var channel = Context.Guild.Channels[guildSettings.LogsChannelId!.Value];
             if (channel is TextGuildChannel textChannel) {
                 textChannel.SendMessageAsync(new MessageProperties().WithEmbeds([
-                    new EmbedProperties()
-                        .WithTitle($"Moderation Action: {type}")
-                        .WithColor(type switch
-                        {
+                    EmbedHelper.Embed(
+                        title: $"Moderation Action: {type}",
+                        color: type switch {
                             GuildModeration.Infraction.Type.Warning => Colors.Yellow,
                             GuildModeration.Infraction.Type.Timeout => Colors.Orange,
                             GuildModeration.Infraction.Type.Kick => Colors.Red,
                             GuildModeration.Infraction.Type.Ban => Colors.Red,
                             _ => Colors.White
-                        })
-                        .WithFields([
-                            new EmbedFieldProperties()
-                                .WithName("User:")
-                                .WithValue($"<@{userId}>")
-                                .WithInline(true),
-                            new EmbedFieldProperties()
-                                .WithName("Moderator:")
-                                .WithValue($"<@{Context.User.Id}>")
-                                .WithInline(true),
-                            new EmbedFieldProperties()
-                                .WithName("Reason:")
-                                .WithValue(reason)
-                            ])
-                        .WithTimestamp(DateTime.UtcNow)
+                        },
+                        fields: [
+                            EmbedHelper.Field("User:", $"<@{userId}>", true),
+                            EmbedHelper.Field("Moderator:", $"<@{Context.User.Id}>", true),
+                            EmbedHelper.Field("Reason:", reason)
+                        ],
+                        timestamp: DateTime.UtcNow
+                    )
                 ]));
             }
         }

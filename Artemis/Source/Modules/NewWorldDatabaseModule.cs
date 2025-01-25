@@ -143,24 +143,24 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                .WithTitle("New World Database Counts")
-                .WithColor(Colors.Pink)
-                .WithDescription(
-                $"**Items**: {items}\n" +
-                $"**Mounts**: {mounts}\n" +
-                $"**Recipes**: {recipes}\n" +
-                $"**Abilities**: {abilities}\n" +
-                $"**Perks**: {perks}\n" +
-                $"**Status Effects**: {statusEffects}\n" +
-                $"**Quests**: {quests}\n" +
-                $"**Creatures**: {creatures}\n" +
-                $"**Gatherables**: {gatherables}\n" +
-                $"**Shops**: {shops}\n" +
-                $"**NPCs**: {npcs}\n" +
-                $"**Zones**: {zones}\n\n" +
-                $"**Total**: {total}")
-                    ];
+                EmbedHelper.Embed(
+                    title: "New World Database Counts",
+                    color: Colors.Pink,
+                    description: $"**Items**: {items}\n" +
+                                 $"**Mounts**: {mounts}\n" +
+                                 $"**Recipes**: {recipes}\n" +
+                                 $"**Abilities**: {abilities}\n" +
+                                 $"**Perks**: {perks}\n" +
+                                 $"**Status Effects**: {statusEffects}\n" +
+                                 $"**Quests**: {quests}\n" +
+                                 $"**Creatures**: {creatures}\n" +
+                                 $"**Gatherables**: {gatherables}\n" +
+                                 $"**Shops**: {shops}\n" +
+                                 $"**NPCs**: {npcs}\n" +
+                                 $"**Zones**: {zones}\n\n" +
+                                 $"**Total**: {total}"
+                )
+            ];
         });
     }
 

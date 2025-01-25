@@ -41,16 +41,17 @@ public class MessageUpdateHandler(GatewayClient client, Cache.MessageCache cache
         await ((TextGuildChannel)logsChannel).SendMessageAsync(
             new MessageProperties().WithEmbeds(
                 [
-                    new EmbedProperties()
-                        .WithColor(Colors.Yellow)
-                        .WithTitle("Message Edited")
-                        .WithDescription(description)
-                        .WithFields([
-                            new EmbedFieldProperties().WithName("Author:").WithValue($"{currentMessage.Author}").WithInline(true),
-                            new EmbedFieldProperties().WithName("Channel:").WithValue($"{currentMessage.Channel}").WithInline(true)
-                        ])
-                        .WithThumbnail(new EmbedThumbnailProperties(currentMessage.Author.GetAvatarUrl()?.ToString()) ?? null)
-                        .WithTimestamp(DateTimeOffset.UtcNow)
+                    EmbedHelper.Embed(
+                        title: "Message Edited",
+                        description: description,
+                        color: Colors.Yellow,
+                        fields: [
+                            EmbedHelper.Field("Author:", currentMessage.Author.ToString(), true),
+                            EmbedHelper.Field("Channel:", currentMessage.Channel!.ToString(), true)
+                        ],
+                        thumbnail: new EmbedThumbnailProperties(currentMessage.Author.GetAvatarUrl()?.ToString()) ?? null,
+                        timestamp: DateTimeOffset.UtcNow
+                    )
                 ]
             )
         );

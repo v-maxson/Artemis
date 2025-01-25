@@ -17,20 +17,15 @@ public class VoiceMasterSetupModule : ApplicationCommandModule<ApplicationComman
 {
     [SubSlashCommand("setup", "Set up VoiceMaster for this server.")]
     public async Task SetupAsync() {
-        var embed = new EmbedProperties()
-            .WithTitle("VoiceMaster Setup")
-            .WithColor(Colors.Blue)
-            .WithDescription("Please select one of the options below.")
-            .AddFields(
-                new EmbedFieldProperties()
-                    .WithName(VoiceMasterButtonModule.EnableButton.Label)
-                    .WithValue("Set the VoiceMaster channel and enable VoiceMaster functionality for this server.")
-                    .WithInline(true),
-                new EmbedFieldProperties()
-                    .WithName(VoiceMasterButtonModule.DisableButton.Label)
-                    .WithValue("Disable VoiceMaster functionality for this server.")
-                    .WithInline(true)
-            );
+        var embed = EmbedHelper.Embed(
+            title: "VoiceMaster Setup",
+            color: Colors.Blue,
+            description: "Please select one of the options below.",
+            fields: [
+                EmbedHelper.Field(VoiceMasterButtonModule.EnableButton.Label, "Set the VoiceMaster channel and enable VoiceMaster functionality for this server.", true),
+                EmbedHelper.Field(VoiceMasterButtonModule.DisableButton.Label, "Disable VoiceMaster functionality for this server.", true)
+            ]
+        );
 
         var components = new ActionRowProperties()
             .WithButtons([
@@ -52,10 +47,11 @@ public class VoiceMasterSetupModule : ApplicationCommandModule<ApplicationComman
 [SlashCommand("vc", "Commands for modifying your VoiceMaster channel settings.", Contexts = [InteractionContextType.Guild])]
 public class VoiceMasterSettingsModule : ApplicationCommandModule<ApplicationCommandContext>
 {
-    public static readonly EmbedProperties SettingsEmbed = new EmbedProperties()
-        .WithTitle("Your Channel Settings")
-        .WithColor(Colors.Blue)
-        .WithDescription("Please use the drop down menu below to update your settings.");
+    public static readonly EmbedProperties SettingsEmbed = EmbedHelper.Embed(
+        title: "Your Channel Settings",
+        color: Colors.Blue,
+        description: "Please use the drop down menu below to update your settings."
+    );
 
     // This embed is also sent when creating a VoiceMaster channel.
     [SubSlashCommand("settings", "Modify your VoiceMaster channel settings.")]
@@ -80,14 +76,15 @@ public class VoiceMasterButtonModule : ComponentInteractionModule<ButtonInteract
 
     [ComponentInteraction(EnableButtonId)]
     public async Task EnableAsync() {
-        var embed = new EmbedProperties()
-            .WithColor(Colors.Blue)
-            .WithDescription("Please select the VoiceMaster channel below.");
-
         await RespondAsync(
             InteractionCallback.Message(
                 new InteractionMessageProperties()
-                .WithEmbeds([embed])
+                .WithEmbeds([
+                    EmbedHelper.Embed(
+                        color: Colors.Blue,
+                        description: "Please select the VoiceMaster channel below."
+                    )
+                ])
                 .WithComponents([VoiceMasterChannelMenuModule.EnableMenu])
                 .WithFlags(MessageFlags.Ephemeral)
             )
@@ -102,9 +99,10 @@ public class VoiceMasterButtonModule : ComponentInteractionModule<ButtonInteract
             InteractionCallback.Message(
                 new InteractionMessageProperties()
                 .WithEmbeds([
-                    new EmbedProperties()
-                    .WithColor(Colors.Green)
-                    .WithDescription("VoiceMaster functionality has been disabled for this server.")
+                    EmbedHelper.Embed(
+                        color: Colors.Green,
+                        description: "VoiceMaster functionality has been disabled for this server."
+                    )
                 ])
                 .WithFlags(MessageFlags.Ephemeral)
             )
@@ -142,9 +140,10 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
             await ModifyResponseAsync(msg => msg.Components = [VoiceMasterStringMenuModule.SettingsMenu]);
             await FollowupAsync(new InteractionMessageProperties()
                 .WithEmbeds([
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription($"Invalid input. Please enter a number between 0 and 99.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "Invalid input. Please enter a number between 0 and 99."
+                    )
                 ])
                 .WithFlags(MessageFlags.Ephemeral)
                 );
@@ -190,14 +189,15 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
             await ModifyResponseAsync(msg => msg.Components = [VoiceMasterStringMenuModule.SettingsMenu]);
             await FollowupAsync(new InteractionMessageProperties()
                 .WithEmbeds([
-                    new EmbedProperties()
-                    .WithColor(Colors.Green)
-                    .WithDescription(isName
-                        ? $"Your VoiceMaster channel name has been set to **{input}**. This will apply the next time your channel is created."
-                        : $"Your VoiceMaster channel limit has been set to **{input}**. This will apply the next time your channel is created.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: isName
+                                        ? $"Your VoiceMaster channel name has been set to **{input}**. This will apply the next time your channel is created."
+                                        : $"Your VoiceMaster channel limit has been set to **{input}**. This will apply the next time your channel is created."
+                    )
                 ])
                 .WithFlags(MessageFlags.Ephemeral)
-                );
+            );
         }
         else if (userOwnsChannel) {
             // Get the user's channel and update the name or limit.
@@ -214,11 +214,12 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
             await ModifyResponseAsync(msg => msg.Components = [VoiceMasterStringMenuModule.SettingsMenu]);
             await FollowupAsync(new InteractionMessageProperties()
                 .WithEmbeds([
-                    new EmbedProperties()
-                    .WithColor(Colors.Green)
-                    .WithDescription(isName
-                        ? $"Your VoiceMaster channel name has been set to **{input}**."
-                        : $"Your VoiceMaster channel limit has been set to **{input}**.")
+                    EmbedHelper.Embed(
+                        color: Colors.Green,
+                        description: isName
+                                        ? $"Your VoiceMaster channel name has been set to **{input}**."
+                                        : $"Your VoiceMaster channel limit has been set to **{input}**."
+                    )
                 ])
                 .WithFlags(MessageFlags.Ephemeral)
                 );
@@ -265,9 +266,10 @@ public class VoiceMasterChannelMenuModule : ComponentInteractionModule<ChannelMe
         await ModifyResponseAsync(msg => {
             msg.Components = [];
             msg.Embeds = [
-                new EmbedProperties()
-                .WithColor(Colors.Green)
-                .WithDescription($"VoiceMaster channel has been set to <#{channel.Id}>.")
+                EmbedHelper.Embed(
+                    color: Colors.Green,
+                    description: $"VoiceMaster channel has been set to <#{channel.Id}>."
+                )
             ];
         });
     }

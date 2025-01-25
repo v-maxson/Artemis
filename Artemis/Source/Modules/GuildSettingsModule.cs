@@ -18,9 +18,10 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         GuildSettings.Upsert(Context.Guild!.Id, updateAction);
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                    .WithDescription(description)
-                    .WithColor(Colors.Green)
+                EmbedHelper.Embed(
+                    description: description,
+                    color: Colors.Green
+                )
             ];
         });
     }

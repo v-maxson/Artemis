@@ -35,16 +35,17 @@ public class MessageDeleteHandler(GatewayClient client, Cache.MessageCache cache
         await ((TextGuildChannel)logsChannel).SendMessageAsync(
             new MessageProperties().WithEmbeds(
                 [
-                    new EmbedProperties()
-                        .WithColor(Colors.Red)
-                        .WithTitle("Message Deleted")
-                        .WithDescription(message?.Content ?? "Unknown.")
-                        .WithFields([
-                            new EmbedFieldProperties().WithName("Author:").WithValue(message?.Author.ToString() ?? "Unknown.").WithInline(true),
-                            new EmbedFieldProperties().WithName("Channel:").WithValue(message?.Channel?.ToString() ?? "Unknown.").WithInline(true),
-                        ])
-                        .WithThumbnail(new EmbedThumbnailProperties(message?.Author.GetAvatarUrl()?.ToString()) ?? null)
-                        .WithTimestamp(DateTimeOffset.UtcNow)
+                    EmbedHelper.Embed(
+                        title: "Message Deleted",
+                        description: message?.Content ?? "Unknown.",
+                        color: Colors.Red,
+                        fields: [
+                            EmbedHelper.Field("Author:", message?.Author.ToString() ?? "Unknown.", true),
+                            EmbedHelper.Field("Channel:", message?.Channel?.ToString() ?? "Unknown.", true)
+                        ],
+                        thumbnail: new EmbedThumbnailProperties(message?.Author.GetAvatarUrl()?.ToString()) ?? null,
+                        timestamp: DateTimeOffset.UtcNow
+                    )
                 ]
             )
         );

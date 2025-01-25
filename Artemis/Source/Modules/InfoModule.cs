@@ -14,27 +14,20 @@ public class InfoModule(Stopwatch stopwatch) : ApplicationCommandModule<Applicat
     public async Task InfoAsync() {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        var currentApplication = await Context.Client.Rest.GetCurrentBotApplicationInformationAsync();
+        var iconUrl = (await Context.Client.Rest.GetCurrentBotApplicationInformationAsync()).GetIconUrl(ImageFormat.Png)?.ToString();
 
-        var embed = new EmbedProperties()
-            .WithTitle("Client Information")
-            .WithColor(Colors.Pink)
-            .WithThumbnail(new EmbedThumbnailProperties(currentApplication.GetIconUrl(ImageFormat.Png)?.ToString() ?? null))
-            .WithDescription("This bot is open-source, click [here](https://github.com/v-maxson/Artemis) if you find a bug or have a feature request.")
-            .AddFields(
-                new EmbedFieldProperties()
-                    .WithName("Version:")
-                    .WithValue($"v{Assembly.GetExecutingAssembly().GetName().Version}"),
-                new EmbedFieldProperties()
-                    .WithName("Latency:")
-                    .WithValue($"{Context.Client.Latency.Milliseconds}ms"),
-                new EmbedFieldProperties()
-                    .WithName("Uptime:")
-                    .WithValue(Stopwatch.Elapsed.ToString(@"dd\.hh\:mm\:ss")),
-                new EmbedFieldProperties()
-                    .WithName("Memory Usage:")
-                    .WithValue($"{BytesToString(GetProcessMemoryUsage())} / {BytesToString((long?)GetInstalledMemoryCapacity())}")
-            );
+        var embed = EmbedHelper.Embed(
+            title: "Client Information",
+            color: Colors.Pink,
+            thumbnail: new EmbedThumbnailProperties(iconUrl ?? null),
+            description: "This bot is open-source, click [here](https://github.com/v-maxson/Artemis) if you find a bug or have a feature request.",
+            fields: [
+                EmbedHelper.Field("Version:", $"v{Assembly.GetExecutingAssembly().GetName().Version}"),
+                EmbedHelper.Field("Latency:", $"{Context.Client.Latency.Milliseconds}ms"),
+                EmbedHelper.Field("Uptime:", Stopwatch.Elapsed.ToString(@"dd\.hh\:mm\:ss")),
+                EmbedHelper.Field("Memory Usage:", $"{BytesToString(GetProcessMemoryUsage())} / {BytesToString((long?)GetInstalledMemoryCapacity())}")
+            ]
+        );
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [embed];

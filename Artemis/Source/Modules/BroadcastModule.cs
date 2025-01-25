@@ -37,17 +37,14 @@ public partial class BroadcastModule : ApplicationCommandModule<ApplicationComma
         var finalMention = mention is null || mention.Position == 0 || mention.Managed ? "@everyone" : $"<@{mention.Id}>";
         var finalChannel = channel is null ? Context.Channel : channel;
 
-        var footerProperties = new EmbedFooterProperties()
-            .WithText($"Broadcasted by {Context.User.Username}")
-            .WithIconUrl(Context.User.GetAvatarUrl()!.ToString());
-
-        var embed = new EmbedProperties()
-            .WithDescription(message)
-            .WithColor(new Color((int)color))
-            .WithFooter(new EmbedFooterProperties()
-                .WithText($"Broadcasted by {Context.User.Username}")
-                .WithIconUrl(Context.User.GetAvatarUrl()!.ToString()
-            ));
+        var embed = EmbedHelper.Embed(
+            description: message,
+            color: new Color((int)color),
+            footer: EmbedHelper.Footer(
+                "Broadcasted by " + Context.User.Username,
+                Context.User.GetAvatarUrl()?.ToString()
+            )
+        );
 
         if (title != null) embed.WithTitle(title);
 

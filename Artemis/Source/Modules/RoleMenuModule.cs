@@ -17,21 +17,16 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
 {
     [SubSlashCommand("setup", "Setup and modify role menus.")]
     public async Task SetupAsync() {
-        var embed = new EmbedProperties()
-            .WithTitle("Role Menu Setup")
-            .WithColor(Colors.Pink)
-            .WithDescription("Please select one of the options below.")
-            .AddFields(
-                new EmbedFieldProperties()
-                    .WithName(RoleMenuButtonModule.CreateRoleButton.Label)
-                    .WithValue("Create a new role menu."),
-                new EmbedFieldProperties()
-                    .WithName(RoleMenuButtonModule.ModifyRoleButton.Label)
-                    .WithValue("Modify an existing role menu."),
-                new EmbedFieldProperties()
-                    .WithName(RoleMenuButtonModule.DeleteRoleButton.Label)
-                    .WithValue("Delete a role menu.")
-            );
+        var embed = EmbedHelper.Embed(
+            title: "Role Menu Setup",
+            color: Colors.Pink,
+            description: "Please select one of the options below.",
+            fields: [
+                EmbedHelper.Field(RoleMenuButtonModule.CreateRoleButton.Label, "Create a new role menu."),
+                EmbedHelper.Field(RoleMenuButtonModule.ModifyRoleButton.Label, "Modify an existing role menu."),
+                EmbedHelper.Field(RoleMenuButtonModule.DeleteRoleButton.Label, "Delete a role menu.")
+            ]
+        );
 
         var components = new ActionRowProperties()
             .WithButtons([
@@ -64,9 +59,10 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus)) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription("There are no Role Menus to send.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "There are no Role Menus to send."
+                    )
                 ];
             });
             return;
@@ -75,9 +71,10 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         if (!guildRoleMenus.RoleMenus.TryGetValue(roleMenuName, out GuildRoleMenus.RoleMenu? roleMenu)) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription("That Role Menu does not exist.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "That Role Menu does not exist."
+                    )
                 ];
             });
             return;
@@ -86,9 +83,10 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         if (roleMenu.RoleIds.Count == 0) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription("That Role Menu does not have any roles.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "That Role Menu does not have any roles."
+                    )
                 ];
             });
             return;
@@ -97,10 +95,11 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         var description = roleMenu.MultiSelect ? "Please select 1 or more roles using the drop down menu below." : "Please select a role using the drop down menu below.";
         var roles = roleMenu.RoleIds.Select(id => Context.Guild!.Roles[id]).ToList();
 
-        var embed = new EmbedProperties()
-            .WithTitle($"{roleMenuName}")
-            .WithDescription(description)
-            .WithColor(Colors.Pink);
+        var embed = EmbedHelper.Embed(
+            title: roleMenuName,
+            description: description,
+            color: Colors.Pink
+        );
 
         var components = new StringMenuProperties(RoleMenuStringMenuModule.GenerateRoleSelectMenuId(roleMenuName, roleMenu.MultiSelect))
             .WithOptions(roles.Select(role => new StringMenuSelectOptionProperties(role.Name, role.Id.ToString())));
@@ -113,9 +112,10 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                .WithColor(Colors.Pink)
-                .WithDescription($"Role Menu '{roleMenuName}' has been sent to {finalChannel}.")
+                EmbedHelper.Embed(
+                    color: Colors.Pink,
+                    description: $"Role Menu '{roleMenuName}' has been sent to {finalChannel}."
+                )
             ];
         });
     }
@@ -124,18 +124,15 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         var roles = includedRoles.Any() ? string.Join(", ", includedRoles.Select(id => $"<@&{id}>")) : "*None*";
         var multiSelect = isMultiSelect ? "Yes, this menu can be used to apply any of the above roles." : "No, this menu can only be used to apply one of the above roles.";
 
-        var embed = new EmbedProperties()
-            .WithTitle($"'{name}' Role Menu Editor")
-            .WithDescription("Please use the drop down menus below to add/remove roles from this menu.")
-            .WithColor(Colors.Pink)
-            .WithFields([
-                new EmbedFieldProperties()
-                .WithName("Include Roles:")
-                .WithValue(roles),
-                new EmbedFieldProperties()
-                .WithName("Multi-Select:")
-                .WithValue(multiSelect)
-            ]);
+        var embed = EmbedHelper.Embed(
+            title: $"'{name}' Role Menu Editor",
+            description: "Please use the drop down menus below to add/remove roles from this menu.",
+            color: Colors.Pink,
+            fields: [
+                EmbedHelper.Field("Include Roles:", roles),
+                EmbedHelper.Field("Multi-Select:", multiSelect)
+            ]
+        );
 
         List<ComponentProperties> components = [
             new ActionRowProperties()
@@ -191,9 +188,10 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
         if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus) || guildRoleMenus.RoleMenus.Count == 0) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription("There are no Role Menus to modify.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "There are no Role Menus to modify."
+                    )
                 ];
             });
             return;
@@ -201,9 +199,10 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                .WithColor(Colors.Pink)
-                .WithDescription("Please select a Role Menu to delete.")
+                EmbedHelper.Embed(
+                    color: Colors.Pink,
+                    description: "Please select a Role Menu to modify."
+                )
             ];
 
             msg.Components = [
@@ -220,9 +219,10 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
         if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus) || guildRoleMenus.RoleMenus.Count == 0) {
             await ModifyResponseAsync(msg => {
                 msg.Embeds = [
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription("There are no Role Menus to delete.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "There are no Role Menus to delete."
+                    )
                 ];
             });
             return;
@@ -230,9 +230,10 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                .WithColor(Colors.Pink)
-                .WithDescription("Please select a Role Menu to delete.")
+                EmbedHelper.Embed(
+                    color: Colors.Pink,
+                    description: "Please select a Role Menu to delete."
+                )
             ];
 
             msg.Components = [
@@ -277,9 +278,10 @@ public class RoleMenuModalModule : ComponentInteractionModule<ModalInteractionCo
             await RespondAsync(InteractionCallback.Message(
                 new InteractionMessageProperties()
                 .WithEmbeds([
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription("A role menu with that name already exists.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "A role menu with that name already exists."
+                    )
                 ])
                 .WithFlags(MessageFlags.Ephemeral)
                 ));
@@ -314,12 +316,13 @@ public class RoleMenuRoleMenuModule : ComponentInteractionModule<RoleMenuInterac
             await RespondAsync(InteractionCallback.Message(
                 new InteractionMessageProperties()
                 .WithEmbeds([
-                    new EmbedProperties()
-                    .WithColor(Colors.Red)
-                    .WithDescription("You cannot add integration-managed roles (bot roles) to a role menu.")
+                    EmbedHelper.Embed(
+                        color: Colors.Red,
+                        description: "You cannot add integration-managed roles (bot roles) to a role menu."
+                    )
                 ])
                 .WithFlags(MessageFlags.Ephemeral)
-                ));
+            ));
             return;
         }
 
@@ -396,9 +399,10 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                    .WithColor(Colors.Pink)
-                    .WithDescription("Roles have been added/removed.")
+                EmbedHelper.Embed(
+                    color: Colors.Pink,
+                    description: "Roles have been added/removed."
+                )
             ];
         });
     }
@@ -431,9 +435,10 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
 
         await ModifyResponseAsync(msg => {
             msg.Embeds = [
-                new EmbedProperties()
-                .WithColor(Colors.Pink)
-                .WithDescription($"Role Menu '{selectedMenuName}' has been deleted.")
+                EmbedHelper.Embed(
+                    color: Colors.Pink,
+                    description: $"Role Menu '{selectedMenuName}' has been deleted."
+                )
             ];
             msg.Components = [];
         });
