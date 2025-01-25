@@ -12,8 +12,7 @@ public class MessageUpdateHandler(GatewayClient client, Cache.MessageCache cache
     private readonly GatewayClient Client = client;
     private readonly Cache.MessageCache MessageCache = cache;
 
-    public async ValueTask HandleAsync(Message currentMessage)
-    { 
+    public async ValueTask HandleAsync(Message currentMessage) {
         if (currentMessage == null || currentMessage.Author.IsBot) return;
 
         // Get the guild settings.
@@ -34,11 +33,10 @@ public class MessageUpdateHandler(GatewayClient client, Cache.MessageCache cache
 
         // If previousMessage length + currentMessage length is more than 4000 (Max Discord Message Size), only include the old content.
         var description = $"**Old Content:**\n{previousMessage?.Content ?? "Unknown."}\n\n**[New Content]({currentMessage.GetUrl()}):**\n{currentMessage.Content}";
-        if (((previousMessage?.Content.Length ?? 0) + currentMessage.Content.Length) >= 4000)
-        {
+        if (((previousMessage?.Content.Length ?? 0) + currentMessage.Content.Length) >= 4000) {
             description = $"**Old Content:**\n{previousMessage?.Content ?? "Unknown."}\n\n**New Content:**\nClick [here]({currentMessage.GetUrl()})";
         }
-        
+
         // Send the log message.
         await ((TextGuildChannel)logsChannel).SendMessageAsync(
             new MessageProperties().WithEmbeds(

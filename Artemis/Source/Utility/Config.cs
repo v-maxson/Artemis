@@ -24,8 +24,7 @@ public class Config
         public NetCord.Gateway.UserActivityType Type { get; set; } = NetCord.Gateway.UserActivityType.Playing;
 
         public ClientPresence() { }
-        public ClientPresence(string text, NetCord.Gateway.UserActivityType type = NetCord.Gateway.UserActivityType.Playing, NetCord.UserStatusType status = NetCord.UserStatusType.Online)
-        {
+        public ClientPresence(string text, NetCord.Gateway.UserActivityType type = NetCord.Gateway.UserActivityType.Playing, NetCord.UserStatusType status = NetCord.UserStatusType.Online) {
             Text = text;
             Type = type;
             Status = status;
@@ -35,53 +34,44 @@ public class Config
     [JsonProperty("client_presences")]
     public List<ClientPresence> ClientPresences { get; set; } = [];
 
-    public static Config Load()
-    {
-        
+    public static Config Load() {
 
-        if (!Directory.Exists(CONFIG_DIRECTORY))
-        {
+
+        if (!Directory.Exists(CONFIG_DIRECTORY)) {
             Log.Warning("Config directory does not exist, creating...");
-            
-            try
-            {
+
+            try {
                 Directory.CreateDirectory(CONFIG_DIRECTORY);
-            } 
-            catch (Exception e)
-            {
+            }
+            catch (Exception e) {
                 Log.Fatal("Failed to create config directory, exiting...", e);
                 Environment.Exit(1);
             }
         }
 
-        if (!File.Exists(CONFIG_PATH))
-        {
+        if (!File.Exists(CONFIG_PATH)) {
             Log.Warning("Config file does not exist, creating...");
-            try
-            {
+            try {
                 var config = new Config();
                 File.WriteAllText(CONFIG_PATH, JsonConvert.SerializeObject(config, Formatting.Indented));
                 Log.Information("Config file created, please fill in the required fields and restart the bot.");
                 Environment.Exit(0);
                 return null!;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 Log.Fatal("Failed to create config file, exiting...", e);
                 Environment.Exit(1);
                 return null!;
             }
         }
 
-        try
-        {
+        try {
             var config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(CONFIG_PATH));
             File.WriteAllText(CONFIG_PATH, JsonConvert.SerializeObject(config, Formatting.Indented));
 
             return config!;
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             Log.Fatal("Failed to load config file, exiting...", e);
             Environment.Exit(1);
             return null!;

@@ -13,8 +13,7 @@ internal static class Database
 
     public static bool Commit() => Connection.Commit();
 
-    public static void CreateBackup()
-    {
+    public static void CreateBackup() {
         // If "backups" folder doesn't exist, create it.
         if (!Directory.Exists("backups"))
             Directory.CreateDirectory("backups");

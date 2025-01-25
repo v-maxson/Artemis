@@ -9,10 +9,8 @@ namespace Handlers;
 [GatewayEvent(nameof(GatewayClient.Log))]
 public class LoggingHandler : IGatewayEventHandler<LogMessage>
 {
-    public ValueTask HandleAsync(LogMessage message)
-    {
-        var severity = message.Severity switch
-        {
+    public ValueTask HandleAsync(LogMessage message) {
+        var severity = message.Severity switch {
             LogSeverity.Info => LogEventLevel.Information,
             LogSeverity.Error => LogEventLevel.Error,
             _ => LogEventLevel.Information

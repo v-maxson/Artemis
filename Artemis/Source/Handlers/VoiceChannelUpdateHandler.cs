@@ -9,8 +9,7 @@ namespace Handlers;
 [GatewayEvent(nameof(GatewayClient.GuildChannelUpdate))]
 public class VoiceChannelUpdateHandler : IGatewayEventHandler<IGuildChannel>
 {
-    public ValueTask HandleAsync(IGuildChannel channel)
-    {
+    public ValueTask HandleAsync(IGuildChannel channel) {
         // If the channel is not a voice channel, return.
         if (channel is not VoiceGuildChannel voiceChannel) return default;
 
@@ -21,13 +20,11 @@ public class VoiceChannelUpdateHandler : IGatewayEventHandler<IGuildChannel>
 
         // Check for applicable settings to change and update them in the user's settings.
         bool updated = false;
-        if (voiceChannel.Name != userVmSettings.ChannelName)
-        {
+        if (voiceChannel.Name != userVmSettings.ChannelName) {
             userVmSettings.ChannelName = voiceChannel.Name;
             updated = true;
         }
-        if (voiceChannel.UserLimit != userVmSettings.ChannelLimit)
-        {
+        if (voiceChannel.UserLimit != userVmSettings.ChannelLimit) {
             userVmSettings.ChannelLimit = voiceChannel.UserLimit;
             updated = true;
         }

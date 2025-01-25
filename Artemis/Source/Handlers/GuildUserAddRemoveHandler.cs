@@ -11,8 +11,7 @@ public class GuildUserAddHandler(GatewayClient client) : IGatewayEventHandler<Gu
 {
     private readonly GatewayClient Client = client;
 
-    public async ValueTask HandleAsync(GuildUser user)
-    {
+    public async ValueTask HandleAsync(GuildUser user) {
         // Get the guild settings.
         if (!GuildSettings.TryGet(user.GuildId, out var settings)) return;
 
@@ -25,10 +24,9 @@ public class GuildUserAddHandler(GatewayClient client) : IGatewayEventHandler<Gu
             );
     }
 
-    private async Task AssignAutoRole(GuildUser user, GuildSettings settings)
-    {
+    private async Task AssignAutoRole(GuildUser user, GuildSettings settings) {
         if (settings.AutoRoleId == null) return;
-        
+
         // Get the guild.
         var guild = await Client.GetOrFetchGuildAsync(user.GuildId);
         if (guild is null) return;
@@ -41,8 +39,7 @@ public class GuildUserAddHandler(GatewayClient client) : IGatewayEventHandler<Gu
         await user.AddRoleAsync(role.Id);
     }
 
-    private async Task SendLogAsync(GuildUser user, GuildSettings settings)
-    {
+    private async Task SendLogAsync(GuildUser user, GuildSettings settings) {
         if (settings.LogsChannelId == null || !settings.JoinLeaveLogsEnabled) return;
 
         // Get the guild.
@@ -79,8 +76,7 @@ public class GuildUserRemoveHandler(GatewayClient client) : IGatewayEventHandler
 {
     private readonly GatewayClient Client = client;
 
-    public async ValueTask HandleAsync(GuildUserRemoveEventArgs userLeft)
-    {
+    public async ValueTask HandleAsync(GuildUserRemoveEventArgs userLeft) {
         // Get the guild settings.
         if (!GuildSettings.TryGet(userLeft.GuildId, out var settings)) return;
 
@@ -88,8 +84,7 @@ public class GuildUserRemoveHandler(GatewayClient client) : IGatewayEventHandler
         await SendLogAsync(userLeft, settings);
     }
 
-    private async Task SendLogAsync(GuildUserRemoveEventArgs userLeft, GuildSettings settings)
-    {
+    private async Task SendLogAsync(GuildUserRemoveEventArgs userLeft, GuildSettings settings) {
         if (settings.LogsChannelId == null || !settings.JoinLeaveLogsEnabled) return;
 
         // Get the guild.

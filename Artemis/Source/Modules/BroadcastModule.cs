@@ -9,9 +9,9 @@ public partial class BroadcastModule : ApplicationCommandModule<ApplicationComma
 {
     #region Broadcast Metadata
     [SlashCommand(
-        "broadcast", 
-        "Broadcast a message.", 
-        Contexts = [InteractionContextType.Guild], 
+        "broadcast",
+        "Broadcast a message.",
+        Contexts = [InteractionContextType.Guild],
         DefaultGuildUserPermissions = Permissions.ManageGuild
     )]
     public partial Task BroadcastAsync(
@@ -31,8 +31,7 @@ public partial class BroadcastModule : ApplicationCommandModule<ApplicationComma
         ColorEnum color = ColorEnum.Pink
     );
     #endregion
-    public partial async Task BroadcastAsync(string message, string? title, Role? mention, TextGuildChannel? channel, ColorEnum color)
-    {
+    public partial async Task BroadcastAsync(string message, string? title, Role? mention, TextGuildChannel? channel, ColorEnum color) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
         var finalMention = mention is null || mention.Position == 0 || mention.Managed ? "@everyone" : $"<@{mention.Id}>";
@@ -53,8 +52,7 @@ public partial class BroadcastModule : ApplicationCommandModule<ApplicationComma
         if (title != null) embed.WithTitle(title);
 
         await finalChannel.SendMessageAsync(new MessageProperties().WithContent(finalMention).WithEmbeds([embed]));
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [new EmbedProperties().WithDescription("Message Broadcasted!")];
         });
     }

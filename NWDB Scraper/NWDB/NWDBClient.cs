@@ -15,11 +15,9 @@ public class NWDBClient
     private readonly HtmlWeb HtmlWeb = new();
     private readonly Random Random = new();
 
-    public NWDBClient()
-    {
+    public NWDBClient() {
         // Randomize User-Agent to avoid rate limit.
-        HtmlWeb.PreRequest += (request) =>
-        {
+        HtmlWeb.PreRequest += (request) => {
             // Thanks ChatGPT
             string[] headers = [
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -39,8 +37,7 @@ public class NWDBClient
         };
     }
 
-    public async Task<IEnumerable<Entity>> GetEntitiesAsync(string url)
-    {
+    public async Task<IEnumerable<Entity>> GetEntitiesAsync(string url) {
 
         var doc = await HtmlWeb.LoadFromWebAsync(url);
 
@@ -52,13 +49,11 @@ public class NWDBClient
 
         var items = new List<Entity>();
 
-        foreach (var docItem in tableContents)
-        {
+        foreach (var docItem in tableContents) {
             var itemEllipsis = docItem
                 .QuerySelector("td.ellipsis") // Item name box.
                 .QuerySelector("a.table-item-name");
-            var item = new Entity()
-            {
+            var item = new Entity() {
                 Name = itemEllipsis.InnerText,
                 Url = Constants.BaseUrl + itemEllipsis.GetAttributeValue("href", "")
             };
@@ -69,15 +64,13 @@ public class NWDBClient
         return items;
     }
 
-    internal async Task AddEntitiesToDb(LiteDatabase db, string collectionName, int pageCount)
-    {
+    internal async Task AddEntitiesToDb(LiteDatabase db, string collectionName, int pageCount) {
         /// "status-effects" is a special case.
         ILiteCollection<Entity> items;
         if (collectionName == "status-effects") items = db.GetCollection<Entity>("statuseffects");
         else items = db.GetCollection<Entity>(collectionName);
 
-        for (int i = 1; i <= pageCount; i++)
-        {
+        for (int i = 1; i <= pageCount; i++) {
             var pageItems = await GetEntitiesAsync(Constants.PageUrl(collectionName, i));
             items.InsertBulk(pageItems);
             Console.WriteLine("Retrieved {0} page {1}/{2}", collectionName, i, pageCount);

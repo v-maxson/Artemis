@@ -11,8 +11,7 @@ public class InfoModule(Stopwatch stopwatch) : ApplicationCommandModule<Applicat
     private readonly Stopwatch Stopwatch = stopwatch;
 
     [SlashCommand("info", "Displays information about this bot.")]
-    public async Task InfoAsync()
-    {
+    public async Task InfoAsync() {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
         var currentApplication = await Context.Client.Rest.GetCurrentBotApplicationInformationAsync();
@@ -37,14 +36,12 @@ public class InfoModule(Stopwatch stopwatch) : ApplicationCommandModule<Applicat
                     .WithValue($"{BytesToString(GetProcessMemoryUsage())} / {BytesToString((long?)GetInstalledMemoryCapacity())}")
             );
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [embed];
         });
     }
 
-    static string BytesToString(long? byteCount)
-    {
+    static string BytesToString(long? byteCount) {
         if (byteCount == null) return "Unknown";
 
         string[] suf = ["B", "KB", "MB", "GB"];
@@ -56,15 +53,13 @@ public class InfoModule(Stopwatch stopwatch) : ApplicationCommandModule<Applicat
         return (Math.Sign((long)byteCount) * num).ToString() + suf[place];
     }
 
-    private static long GetProcessMemoryUsage()
-    {
+    private static long GetProcessMemoryUsage() {
         var process = Process.GetCurrentProcess();
 
         return process.PrivateMemorySize64;
     }
 
-    private static ulong? GetInstalledMemoryCapacity()
-    {
+    private static ulong? GetInstalledMemoryCapacity() {
         var info = new Hardware.Info.HardwareInfo();
 
         try { info.RefreshMemoryList(); }

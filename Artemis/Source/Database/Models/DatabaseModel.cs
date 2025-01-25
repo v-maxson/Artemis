@@ -12,20 +12,17 @@ internal abstract class DatabaseModel<T>
     public required ulong Id { get; set; }
     public ulong? SecondaryId { get; set; }
 
-    public static BsonValue Create(T value)
-    {
+    public static BsonValue Create(T value) {
         var id = Collection.Insert(value);
         Database.Commit();
         return id;
     }
 
-    public static T Upsert(ulong id, Action <T> action)
-    {
+    public static T Upsert(ulong id, Action<T> action) {
         return Upsert(id, null, action);
     }
 
-    public static T Upsert(ulong id, ulong? secondaryId, Action <T> action)
-    {
+    public static T Upsert(ulong id, ulong? secondaryId, Action<T> action) {
         var entity = GetOrCreate(id, secondaryId);
         action(entity);
         Collection.Update(entity);
@@ -33,65 +30,53 @@ internal abstract class DatabaseModel<T>
         return entity;
     }
 
-    public static T Upsert(T value)
-    {
+    public static T Upsert(T value) {
         Collection.Upsert(value);
         Database.Commit();
         return value;
     }
 
-    public static bool TryGet(Expression<Func<T, bool>> predicate, out T value)
-    {
+    public static bool TryGet(Expression<Func<T, bool>> predicate, out T value) {
         var search = Collection.FindOne(predicate);
-        if (search != null)
-        {
+        if (search != null) {
             value = search;
             return true;
         }
-        else
-        {
+        else {
             value = null!;
             return false;
         }
     }
 
-    public static bool TryGet(ulong id, out T value)
-    {
+    public static bool TryGet(ulong id, out T value) {
         T? search = Collection.FindOne(x => x.Id == id);
-        if (search != null)
-        {
+        if (search != null) {
             value = search;
             return true;
         }
-        else
-        {
+        else {
             value = null!;
             return false;
         }
     }
 
-    public static bool TryGet(ulong id, ulong? secondaryId, out T value)
-    {
+    public static bool TryGet(ulong id, ulong? secondaryId, out T value) {
         T? search = Collection.FindOne(x => x.Id == id && x.SecondaryId == secondaryId);
 
-        if (search != null)
-        {
+        if (search != null) {
             value = search;
             return true;
         }
-        else
-        {
+        else {
             value = null!;
             return false;
         }
     }
 
-    public static T GetOrCreate(ulong id, ulong? secondaryId = null)
-    {
+    public static T GetOrCreate(ulong id, ulong? secondaryId = null) {
         TryGet(id, secondaryId, out var entity);
 
-        if (entity == null)
-        {
+        if (entity == null) {
             entity = Activator.CreateInstance<T>();
             entity.Id = id;
             entity.SecondaryId = secondaryId;

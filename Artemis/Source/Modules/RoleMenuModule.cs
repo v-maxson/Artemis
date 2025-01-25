@@ -8,16 +8,15 @@ using Serilog;
 namespace Modules;
 
 [SlashCommand(
-    "rolemenu", 
-    "Commands for managing role menus.", 
-    Contexts = [InteractionContextType.Guild], 
+    "rolemenu",
+    "Commands for managing role menus.",
+    Contexts = [InteractionContextType.Guild],
     DefaultGuildUserPermissions = Permissions.ManageRoles
 )]
 public partial class RoleMenuModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SubSlashCommand("setup", "Setup and modify role menus.")]
-    public async Task SetupAsync()
-    {
+    public async Task SetupAsync() {
         var embed = new EmbedProperties()
             .WithTitle("Role Menu Setup")
             .WithColor(Colors.Pink)
@@ -59,14 +58,11 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         TextGuildChannel? channel = null
     );
     #endregion
-    public partial async Task SendAsync(string roleMenuName, TextGuildChannel? channel)
-    {
+    public partial async Task SendAsync(string roleMenuName, TextGuildChannel? channel) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus))
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus)) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                     .WithColor(Colors.Red)
@@ -76,10 +72,8 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
             return;
         }
 
-        if (!guildRoleMenus.RoleMenus.TryGetValue(roleMenuName, out GuildRoleMenus.RoleMenu? roleMenu))
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        if (!guildRoleMenus.RoleMenus.TryGetValue(roleMenuName, out GuildRoleMenus.RoleMenu? roleMenu)) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                     .WithColor(Colors.Red)
@@ -89,10 +83,8 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
             return;
         }
 
-        if (roleMenu.RoleIds.Count == 0)
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        if (roleMenu.RoleIds.Count == 0) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                     .WithColor(Colors.Red)
@@ -119,8 +111,7 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         var finalChannel = channel ?? Context.Channel;
         await finalChannel.SendMessageAsync(new MessageProperties().WithEmbeds([embed]).WithComponents([components]));
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                 .WithColor(Colors.Pink)
@@ -129,8 +120,7 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
         });
     }
 
-    public static (EmbedProperties, IEnumerable<ComponentProperties>) GenerateMenuEditor(string name, IEnumerable<ulong> includedRoles, bool isMultiSelect)
-    {
+    public static (EmbedProperties, IEnumerable<ComponentProperties>) GenerateMenuEditor(string name, IEnumerable<ulong> includedRoles, bool isMultiSelect) {
         var roles = includedRoles.Any() ? string.Join(", ", includedRoles.Select(id => $"<@&{id}>")) : "*None*";
         var multiSelect = isMultiSelect ? "Yes, this menu can be used to apply any of the above roles." : "No, this menu can only be used to apply one of the above roles.";
 
@@ -162,8 +152,7 @@ public partial class RoleMenuModule : ApplicationCommandModule<ApplicationComman
 
 public class RoleMenuAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         var input = option.Value!;
 
         if (!GuildRoleMenus.TryGet(context.Guild!.Id, out var guildRoleMenus))
@@ -191,20 +180,16 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
     public static readonly ButtonProperties DeleteRoleButton = new(DeleteRoleMenuId, "❌", ButtonStyle.Secondary);
 
     [ComponentInteraction(CreateRoleMenuId)]
-    public async Task CreateRoleMenuAsync()
-    {
+    public async Task CreateRoleMenuAsync() {
         await RespondAsync(InteractionCallback.Modal(RoleMenuModalModule.CreateRoleMenuModal));
     }
 
     [ComponentInteraction(ModifyRoleMenuId)]
-    public async Task ModifyRoleMenuAsync()
-    {
+    public async Task ModifyRoleMenuAsync() {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus) || guildRoleMenus.RoleMenus.Count == 0)
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus) || guildRoleMenus.RoleMenus.Count == 0) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                     .WithColor(Colors.Red)
@@ -214,8 +199,7 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
             return;
         }
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                 .WithColor(Colors.Pink)
@@ -230,13 +214,11 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
     }
 
     [ComponentInteraction(DeleteRoleMenuId)]
-    public async Task DeleteRoleMenuAsync()
-    {
+    public async Task DeleteRoleMenuAsync() {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
         if (!GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus) || guildRoleMenus.RoleMenus.Count == 0) {
-            await ModifyResponseAsync(msg =>
-            {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                     .WithColor(Colors.Red)
@@ -246,8 +228,7 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
             return;
         }
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                 .WithColor(Colors.Pink)
@@ -262,17 +243,14 @@ public class RoleMenuButtonModule : ComponentInteractionModule<ButtonInteraction
     }
 
     [ComponentInteraction(ToggleMultiSelectId)]
-    public async Task ToggleMultiSelectAsync(string name)
-    {
+    public async Task ToggleMultiSelectAsync(string name) {
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
-        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus =>
-        {
+        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus => {
             roleMenus.RoleMenus[name].MultiSelect = !roleMenus.RoleMenus[name].MultiSelect;
         });
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             var menuEditor = RoleMenuModule.GenerateMenuEditor(name, updatedMenu.RoleMenus[name].RoleIds, updatedMenu.RoleMenus[name].MultiSelect);
             msg.Embeds = [menuEditor.Item1];
             msg.Components = menuEditor.Item2;
@@ -289,15 +267,13 @@ public class RoleMenuModalModule : ComponentInteractionModule<ModalInteractionCo
         [new TextInputProperties(CreateRoleMenuNameInputId, TextInputStyle.Short, "Name").WithMaxLength(50)]);
 
     [ComponentInteraction(CreateRoleMenuModalId)]
-    public async Task CreateRoleMenuModalAsync()
-    {
+    public async Task CreateRoleMenuModalAsync() {
         var name = Context.Components.OfType<TextInput>().First().Value;
 
         // Create a new role menu with the given name.
         var roleMenus = GuildRoleMenus.GetOrCreate(Context.Guild!.Id);
 
-        if (roleMenus.RoleMenus.ContainsKey(name))
-        {
+        if (roleMenus.RoleMenus.ContainsKey(name)) {
             await RespondAsync(InteractionCallback.Message(
                 new InteractionMessageProperties()
                 .WithEmbeds([
@@ -332,11 +308,9 @@ public class RoleMenuRoleMenuModule : ComponentInteractionModule<RoleMenuInterac
     public static string GenerateRoleSelectMenuId(string name) => $"{RoleSelectMenuId}:{name}";
 
     [ComponentInteraction(RoleSelectMenuId)]
-    public async Task RoleSelectMenuAsync(string name)
-    {
+    public async Task RoleSelectMenuAsync(string name) {
         // Check if any of the selected roles are managed by an integration.
-        if (Context.SelectedRoles.Any(x => x.Managed))
-        {
+        if (Context.SelectedRoles.Any(x => x.Managed)) {
             await RespondAsync(InteractionCallback.Message(
                 new InteractionMessageProperties()
                 .WithEmbeds([
@@ -351,13 +325,11 @@ public class RoleMenuRoleMenuModule : ComponentInteractionModule<RoleMenuInterac
 
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
-        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus =>
-        {
+        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus => {
             roleMenus.RoleMenus[name].RoleIds = Context.SelectedRoles.Select(x => x.Id).ToList();
         });
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             var menuEditor = RoleMenuModule.GenerateMenuEditor(name, updatedMenu.RoleMenus[name].RoleIds, updatedMenu.RoleMenus[name].MultiSelect);
             msg.Embeds = [menuEditor.Item1];
             msg.Components = menuEditor.Item2;
@@ -374,8 +346,7 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
     public static string GenerateRoleSelectMenuId(string name, bool isMultiSelect) => $"{RoleSelectMenuId}:{name}:{isMultiSelect}";
 
     [ComponentInteraction(RoleSelectMenuId)]
-    public async Task RoleSelectAsync(string name, bool isMultiSelect)
-    {
+    public async Task RoleSelectAsync(string name, bool isMultiSelect) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
         var selectedRoles = Context.SelectedValues.Select(ulong.Parse).ToList();
@@ -385,8 +356,7 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
         var menuRoles = menu?.RoleIds.Select(id => Context.Guild!.Roles[id]).ToList();
         var member = await Context.Guild.GetUserAsync(Context.User.Id);
 
-        if (!isMultiSelect)
-        {
+        if (!isMultiSelect) {
             var selectedRole = selectedRoles[0];
             // Add the selected role to the user. And remove any other roles in the menu.
             var rolesToRemove = menuRoles?.Where(x => x.Id != selectedRole).Select(x => x.Id).ToList();
@@ -394,36 +364,29 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
             // Add the selected role and remove the others.
             _ = member.AddRoleAsync(selectedRole);
 
-            if (rolesToRemove?.Count > 0)
-            {
-                foreach (var role in rolesToRemove)
-                {
+            if (rolesToRemove?.Count > 0) {
+                foreach (var role in rolesToRemove) {
                     if (member.RoleIds.Contains(role))
                         _ = member.RemoveRoleAsync(role);
                 }
             }
         }
-        else
-        {
+        else {
             // Add the selected roles to the user. And remove any other roles in the menu.
             var rolesToAdd = selectedRoles.Where(x => !member.RoleIds.Contains(x)).ToList();
             var rolesToRemove = menuRoles?.Where(x => !selectedRoles.Contains(x.Id)).Select(x => x.Id).ToList();
 
             // Add the selected roles.
-            if (rolesToAdd.Count > 0)
-            {
-                foreach (var role in rolesToAdd)
-                {
+            if (rolesToAdd.Count > 0) {
+                foreach (var role in rolesToAdd) {
                     if (!member.RoleIds.Contains(role))
                         _ = member.AddRoleAsync(role);
                 }
             }
 
             // Remove the unselected roles.
-            if (rolesToRemove?.Count > 0)
-            {
-                foreach (var role in rolesToRemove)
-                {
+            if (rolesToRemove?.Count > 0) {
+                foreach (var role in rolesToRemove) {
                     if (member.RoleIds.Contains(role))
                         _ = member.RemoveRoleAsync(role);
                 }
@@ -431,8 +394,7 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
 
         }
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                     .WithColor(Colors.Pink)
@@ -442,8 +404,7 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
     }
 
     [ComponentInteraction(ModifyMenuId)]
-    public async Task ModifyMenuAsync()
-    {
+    public async Task ModifyMenuAsync() {
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
         var selectedMenuName = Context.SelectedValues[0];
@@ -451,8 +412,7 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
         GuildRoleMenus.TryGet(Context.Guild!.Id, out var guildRoleMenus);
         var menu = guildRoleMenus?.RoleMenus[selectedMenuName];
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             var menuEditor = RoleMenuModule.GenerateMenuEditor(selectedMenuName, menu!.RoleIds, menu!.MultiSelect);
             msg.Embeds = [menuEditor.Item1];
             msg.Components = menuEditor.Item2;
@@ -460,19 +420,16 @@ public class RoleMenuStringMenuModule : ComponentInteractionModule<StringMenuInt
     }
 
     [ComponentInteraction(DeleteMenuId)]
-    public async Task DeleteMenuAsync()
-    {
+    public async Task DeleteMenuAsync() {
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
         var selectedMenuName = Context.SelectedValues[0];
 
-        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus =>
-        {
+        var updatedMenu = GuildRoleMenus.Upsert(Context.Guild!.Id, roleMenus => {
             roleMenus.RoleMenus.Remove(selectedMenuName);
         });
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                 .WithColor(Colors.Pink)

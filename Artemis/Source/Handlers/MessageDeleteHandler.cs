@@ -12,12 +12,11 @@ public class MessageDeleteHandler(GatewayClient client, Cache.MessageCache cache
     private readonly GatewayClient Client = client;
     private readonly Cache.MessageCache MessageCache = cache;
 
-    public async ValueTask HandleAsync(MessageDeleteEventArgs messageDelete)
-    {
+    public async ValueTask HandleAsync(MessageDeleteEventArgs messageDelete) {
         if (messageDelete == null) return;
 
         // Get the guild settings.
-        if(!GuildSettings.TryGet((ulong)messageDelete.GuildId!, out var settings)) return;
+        if (!GuildSettings.TryGet((ulong)messageDelete.GuildId!, out var settings)) return;
         if (settings.LogsChannelId == null || !settings.MessageDeleteLogsEnabled) return;
 
         // Check if the message is cached.

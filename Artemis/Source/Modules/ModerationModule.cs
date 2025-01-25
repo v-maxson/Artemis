@@ -7,8 +7,8 @@ using NetCord.Services.ApplicationCommands;
 namespace Modules;
 
 [SlashCommand(
-    "moderation", 
-    "Commands for moderating the server.", 
+    "moderation",
+    "Commands for moderating the server.",
     Contexts = [InteractionContextType.Guild],
     DefaultGuildUserPermissions = Permissions.Administrator
 )]
@@ -24,15 +24,12 @@ public partial class ModerationHistoryModule : ApplicationCommandModule<Applicat
         int page = 1
     );
     #endregion
-    public async partial Task HistoryAsync(GuildUser user, int page)
-    {
+    public async partial Task HistoryAsync(GuildUser user, int page) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
         var guildModeration = GuildModeration.GetOrCreate(Context.Guild!.Id);
-        if (!guildModeration.ModeratedUsers.TryGetValue(user.Id, out var infractions) || infractions.Count == 0)
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        if (!guildModeration.ModeratedUsers.TryGetValue(user.Id, out var infractions) || infractions.Count == 0) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                         .WithDescription($"<@{user.Id}> has no moderation history!")
@@ -49,8 +46,7 @@ public partial class ModerationHistoryModule : ApplicationCommandModule<Applicat
 
         List<EmbedFieldProperties> embedFields = [];
 
-        foreach (var infraction in infractionChunk)
-        {
+        foreach (var infraction in infractionChunk) {
             embedFields.Add(
                 new EmbedFieldProperties()
                 .WithName($"{infraction.InfractionType}")
@@ -58,8 +54,7 @@ public partial class ModerationHistoryModule : ApplicationCommandModule<Applicat
             );
         }
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                     .WithTitle($"Moderation History for {user.Nickname}")
@@ -74,7 +69,7 @@ public partial class ModerationHistoryModule : ApplicationCommandModule<Applicat
 
 public partial class ModerationModule : ApplicationCommandModule<ApplicationCommandContext>
 {
-    
+
 
     #region Warn Metadata
     [SlashCommand("warn", "Warns a user.", Contexts = [InteractionContextType.Guild], DefaultGuildUserPermissions = Permissions.ModerateUsers)]
@@ -93,22 +88,19 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         bool dm = false
     );
     #endregion
-    public async partial Task WarnAsync(GuildUser user, string reason, bool silent, bool dm)
-    {
+    public async partial Task WarnAsync(GuildUser user, string reason, bool silent, bool dm) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
         AddInfraction(user.Id, GuildModeration.Infraction.Type.Warning, reason);
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                     .WithDescription($"Done!")
                     .WithColor(Colors.Green)
             ];
         });
-        if (!silent)
-        {
+        if (!silent) {
             await FollowupAsync(
                 new InteractionMessageProperties()
                 .WithContent($"<@{user.Id}>")
@@ -119,8 +111,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
                     ])
                 );
         }
-        if (dm)
-        {
+        if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
                 new EmbedProperties()
                     .WithDescription($"You have been warned in **{Context.Guild!.Name}** for **{reason}**.")
@@ -129,7 +120,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         }
     }
 
-    #region Timeout Metadata 
+    #region Timeout Metadata
     public enum TimeoutDuration
     {
         [SlashCommandChoice("60 seconds")] SixtySeconds = 60,
@@ -140,10 +131,8 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         [SlashCommandChoice("1 week")] OneWeek = 604800
     }
 
-    private static string GetDurationString(TimeoutDuration duration)
-    {
-        return duration switch
-        {
+    private static string GetDurationString(TimeoutDuration duration) {
+        return duration switch {
             TimeoutDuration.SixtySeconds => "60 seconds",
             TimeoutDuration.FiveMinutes => "5 minutes",
             TimeoutDuration.TenMinutes => "10 minutes",
@@ -173,18 +162,14 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         bool dm = false
     );
     #endregion
-    public async partial Task TimeoutAsync(GuildUser user, TimeoutDuration duration, string reason, bool silent, bool dm)
-    {
+    public async partial Task TimeoutAsync(GuildUser user, TimeoutDuration duration, string reason, bool silent, bool dm) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        try
-        {
+        try {
             await user.TimeOutAsync(DateTimeOffset.UtcNow.AddSeconds((int)duration));
         }
-        catch (Exception e)
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        catch (Exception e) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                         .WithDescription($"Failed to timeout <@{user.Id}>: {e.Message}")
@@ -196,8 +181,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         AddInfraction(user.Id, GuildModeration.Infraction.Type.Timeout, reason);
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                     .WithDescription($"Done!")
@@ -205,8 +189,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             ];
         });
 
-        if (!silent)
-        {
+        if (!silent) {
             await FollowupAsync(
                 new InteractionMessageProperties()
                 .WithContent($"<@{user.Id}>")
@@ -218,8 +201,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             );
         }
 
-        if (dm)
-        {
+        if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
                 new EmbedProperties()
                     .WithDescription($"You have been timed out in **{Context.Guild!.Name}** for ***{GetDurationString(duration)}*** for **{reason}**.")
@@ -245,12 +227,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         bool dm = false
     );
     #endregion
-    public async partial Task KickAsync(GuildUser user, string reason, bool silent, bool dm)
-    {
+    public async partial Task KickAsync(GuildUser user, string reason, bool silent, bool dm) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        if (dm)
-        {
+        if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
                 new EmbedProperties()
                 .WithDescription($"You have been kicked from **{Context.Guild!.Name}** for **{reason}**.")
@@ -259,14 +239,11 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             ));
         }
 
-        try
-        {
+        try {
             await user.KickAsync(new RestRequestProperties().WithAuditLogReason($"Kicked by {Context.User.Username} for: {reason}"));
         }
-        catch (Exception e)
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        catch (Exception e) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                         .WithDescription($"Failed to kick <@{user.Id}>: {e.Message}")
@@ -278,8 +255,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         AddInfraction(user.Id, GuildModeration.Infraction.Type.Kick, reason);
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                     .WithDescription($"Done!")
@@ -287,8 +263,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             ];
         });
 
-        if (!silent)
-        {
+        if (!silent) {
             await FollowupAsync(
                 new InteractionMessageProperties()
                 .WithEmbeds([
@@ -331,12 +306,10 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         bool dm = false
     );
     #endregion
-    public async partial Task BanAsync(GuildUser user, string reason, DeleteMessages deleteMessages, bool silent, bool dm)
-    {
+    public async partial Task BanAsync(GuildUser user, string reason, DeleteMessages deleteMessages, bool silent, bool dm) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
-        if (dm)
-        {
+        if (dm) {
             await (await user.GetDMChannelAsync()).SendMessageAsync(new MessageProperties().WithEmbeds([
                 new EmbedProperties()
                 .WithDescription($"You have been banned from **{Context.Guild!.Name}** for **{reason}**.")
@@ -345,14 +318,11 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             ));
         }
 
-        try
-        {
+        try {
             await user.BanAsync((int)deleteMessages, new RestRequestProperties().WithAuditLogReason($"Banned by {Context.User.Username} for: {reason}"));
         }
-        catch (Exception e)
-        {
-            await ModifyResponseAsync(msg =>
-            {
+        catch (Exception e) {
+            await ModifyResponseAsync(msg => {
                 msg.Embeds = [
                     new EmbedProperties()
                         .WithDescription($"Failed to ban <@{user.Id}>: {e.Message}")
@@ -364,8 +334,7 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         AddInfraction(user.Id, GuildModeration.Infraction.Type.Ban, reason);
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                     .WithDescription($"Done!")
@@ -383,10 +352,8 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
         );
     }
 
-    private void AddInfraction(ulong userId, GuildModeration.Infraction.Type type, string reason)
-    {
-        var infraction = new GuildModeration.Infraction
-        {
+    private void AddInfraction(ulong userId, GuildModeration.Infraction.Type type, string reason) {
+        var infraction = new GuildModeration.Infraction {
             ModeratorId = Context.User.Id,
             Reason = reason,
             InfractionType = type,
@@ -395,11 +362,9 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
 
         // If the guild has a logs channel and moderation logs are enabled, send the infraction there.
         if (GuildSettings.TryGet(Context.Guild!.Id, out var guildSettings)) return;
-        if (guildSettings.LogsChannelId != null && guildSettings.ModerationLogsEnabled)
-        {
+        if (guildSettings.LogsChannelId != null && guildSettings.ModerationLogsEnabled) {
             var channel = Context.Guild.Channels[guildSettings.LogsChannelId!.Value];
-            if (channel is TextGuildChannel textChannel)
-            {
+            if (channel is TextGuildChannel textChannel) {
                 textChannel.SendMessageAsync(new MessageProperties().WithEmbeds([
                     new EmbedProperties()
                         .WithTitle($"Moderation Action: {type}")
@@ -429,16 +394,13 @@ public partial class ModerationModule : ApplicationCommandModule<ApplicationComm
             }
         }
 
-        GuildModeration.Upsert(Context.Guild!.Id, gm =>
-        {
+        GuildModeration.Upsert(Context.Guild!.Id, gm => {
             gm.ModeratedUsers.TryGetValue(userId, out var infractions);
-            if (infractions == null)
-            {
+            if (infractions == null) {
                 infractions = [infraction];
                 gm.ModeratedUsers[userId] = infractions;
             }
-            else
-            {
+            else {
                 infractions!.Add(infraction);
                 gm.ModeratedUsers[userId] = infractions;
             }

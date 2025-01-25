@@ -6,19 +6,17 @@ using NetCord;
 namespace Modules;
 
 [SlashCommand(
-    "settings", 
-    "Commands for managing your server settings.", 
+    "settings",
+    "Commands for managing your server settings.",
     Contexts = [InteractionContextType.Guild],
     DefaultGuildUserPermissions = Permissions.ManageGuild
 )]
 public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationCommandContext>
 {
-    private async Task HandleSettingAsync(string description, Action<GuildSettings> updateAction)
-    {
+    private async Task HandleSettingAsync(string description, Action<GuildSettings> updateAction) {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
         GuildSettings.Upsert(Context.Guild!.Id, updateAction);
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                     .WithDescription(description)
@@ -34,8 +32,7 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         TextGuildChannel channel
     );
     #endregion
-    public async partial Task LogChannelAsync(TextGuildChannel channel)
-    {
+    public async partial Task LogChannelAsync(TextGuildChannel channel) {
         await HandleSettingAsync(
             $"Logs will now be sent to <#{channel.Id}>.",
             gs => gs.LogsChannelId = channel.Id
@@ -49,8 +46,7 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         bool enabled
     );
     #endregion
-    public async partial Task ModLogsAsync(bool enabled)
-    {
+    public async partial Task ModLogsAsync(bool enabled) {
         await HandleSettingAsync(
             $"Moderation logs are now {(enabled ? "enabled" : "disabled")}.",
             gs => gs.ModerationLogsEnabled = enabled
@@ -64,8 +60,7 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         bool enabled
     );
     #endregion
-    public async partial Task JoinLeaveLogsAsync(bool enabled)
-    {
+    public async partial Task JoinLeaveLogsAsync(bool enabled) {
         await HandleSettingAsync(
             $"Join/Leave logs are now {(enabled ? "enabled" : "disabled")}.",
             gs => gs.JoinLeaveLogsEnabled = enabled
@@ -79,8 +74,7 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         bool enabled
     );
     #endregion
-    public async partial Task MessageEditLogsAsync(bool enabled)
-    {
+    public async partial Task MessageEditLogsAsync(bool enabled) {
         await HandleSettingAsync(
             $"Message edit logs are now {(enabled ? "enabled" : "disabled")}.",
             gs => gs.MessageEditLogsEnabled = enabled
@@ -94,8 +88,7 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         bool enabled
     );
     #endregion
-    public async partial Task MessageDeleteLogsAsync(bool enabled)
-    {
+    public async partial Task MessageDeleteLogsAsync(bool enabled) {
         await HandleSettingAsync(
             $"Message delete logs are now {(enabled ? "enabled" : "disabled")}.",
             gs => gs.MessageDeleteLogsEnabled = enabled
@@ -109,12 +102,10 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         bool enabled
     );
     #endregion
-    public async partial Task AllLogsAsync(bool enabled)
-    {
+    public async partial Task AllLogsAsync(bool enabled) {
         await HandleSettingAsync(
             $"ALL logs are now {(enabled ? "enabled" : "disabled")}.",
-            gs =>
-            {
+            gs => {
                 gs.ModerationLogsEnabled = enabled;
                 gs.JoinLeaveLogsEnabled = enabled;
                 gs.MessageEditLogsEnabled = enabled;
@@ -130,8 +121,7 @@ public partial class GuildSettingsModule : ApplicationCommandModule<ApplicationC
         Role role
     );
     #endregion
-    public async partial Task AutoRoleAsync(Role role)
-    {
+    public async partial Task AutoRoleAsync(Role role) {
         await HandleSettingAsync(
             $"Auto Role has been set to {role}.",
             gs => gs.AutoRoleId = role.Id

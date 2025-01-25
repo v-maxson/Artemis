@@ -119,13 +119,12 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
     #endregion
 
     [SubSlashCommand("count", "Count the number of items in the New World Database.")]
-    public async Task CountAsync()
-    {
+    public async Task CountAsync() {
         await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
         using var db = new LiteDatabase("nwdb.db");
         var collections = db.GetCollectionNames();
-        
+
         // Get each collection.
         var items = db.GetCollection<NWDB.Entity>("items").Count();
         var mounts = db.GetCollection<NWDB.Entity>("mounts").Count();
@@ -141,8 +140,7 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
         var zones = db.GetCollection<NWDB.Entity>("zones").Count();
         var total = collections.Sum(c => db.GetCollection<NWDB.Entity>(c).Count());
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Embeds = [
                 new EmbedProperties()
                 .WithTitle("New World Database Counts")
@@ -165,8 +163,7 @@ public partial class NewWorldDatabaseModule : ApplicationCommandModule<Applicati
         });
     }
 
-    private async Task SendLink(string link, bool ephemeral)
-    {
+    private async Task SendLink(string link, bool ephemeral) {
         var message = new InteractionMessageProperties().WithContent($"[Here!]({link})");
         if (ephemeral) message.WithFlags(MessageFlags.Ephemeral);
 
@@ -181,8 +178,7 @@ static class NWDBAutoCompleteProvider
 
     public static ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(
         ApplicationCommandInteractionDataOption option,
-        string collectionName)
-    {
+        string collectionName) {
         var input = option.Value!;
 
         var items = DB.GetCollection<NWDB.Entity>(collectionName);
@@ -195,96 +191,84 @@ static class NWDBAutoCompleteProvider
 
 public class ItemsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "items");
     }
 }
 
 public class MountsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "mounts");
     }
 }
 
 public class RecipesAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "recipes");
     }
 }
 
 public class AbilitiesAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "abilities");
     }
 }
 
 public class PerksAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "perks");
     }
 }
 
 public class StatusEffectsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "statuseffects");
     }
 }
 
 public class QuestsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "quests");
     }
 }
 
 public class CreaturesAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "creatures");
     }
 }
 
 public class GatherablesAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "gatherables");
     }
 }
 
 public class ShopsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "shops");
     }
 }
 
 public class NPCSAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "npcs");
     }
 }
 
 public class ZonesAutoCompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
-    {
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context) {
         return NWDBAutoCompleteProvider.GetChoicesAsync(option, "zones");
     }
 }

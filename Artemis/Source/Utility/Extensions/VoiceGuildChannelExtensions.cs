@@ -4,8 +4,7 @@ using NetCord.Gateway;
 
 internal static class VoiceGuildChannelExtensions
 {
-    public static async Task<int?> GetConnectedUserCountAsync(this VoiceGuildChannel channel, GatewayClient client)
-    {
+    public static async Task<int?> GetConnectedUserCountAsync(this VoiceGuildChannel channel, GatewayClient client) {
         // Get the Guild this voice channel belongs to.
         var guild = await client.GetOrFetchGuildAsync(channel.GuildId); if (guild == null) return null;
 

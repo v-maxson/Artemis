@@ -15,13 +15,12 @@ public class ReadyHandler(GatewayClient client, Config config, Stopwatch stopwat
     private readonly Stopwatch Stopwatch = stopwatch;
     private readonly IRecurringJobManager RecurringJob = recurringJob;
 
-    public async ValueTask HandleAsync(ReadyEventArgs ready)
-    {
+    public async ValueTask HandleAsync(ReadyEventArgs ready) {
         // Start the uptime stopwatch.
         Stopwatch.Start();
 
         Log.Information("Connected to Discord as {Username}#{Discriminator}", ready.User.Username, ready.User.Discriminator);
-        
+
         // Set a random presence.
         await SetRandomPresenceAsync();
 
@@ -30,8 +29,7 @@ public class ReadyHandler(GatewayClient client, Config config, Stopwatch stopwat
         RecurringJob.AddOrUpdate("Database Backup", () => DB.Database.CreateBackup(), Cron.Daily);
     }
 
-    public async Task SetRandomPresenceAsync()
-    {
+    public async Task SetRandomPresenceAsync() {
         var presence = Config.ClientPresences.OrderBy(x => Guid.NewGuid()).ToArray().First();
 
         await Client.UpdatePresenceAsync(

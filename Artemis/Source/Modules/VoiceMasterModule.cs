@@ -8,16 +8,15 @@ using NetCord.Services.ComponentInteractions;
 namespace Modules;
 
 [SlashCommand(
-    "voicemaster", 
-    "Commands for managing automatically created voice channels.", 
+    "voicemaster",
+    "Commands for managing automatically created voice channels.",
     Contexts = [InteractionContextType.Guild],
     DefaultGuildUserPermissions = Permissions.ManageChannels
 )]
 public class VoiceMasterSetupModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SubSlashCommand("setup", "Set up VoiceMaster for this server.")]
-    public async Task SetupAsync()
-    {
+    public async Task SetupAsync() {
         var embed = new EmbedProperties()
             .WithTitle("VoiceMaster Setup")
             .WithColor(Colors.Blue)
@@ -60,8 +59,7 @@ public class VoiceMasterSettingsModule : ApplicationCommandModule<ApplicationCom
 
     // This embed is also sent when creating a VoiceMaster channel.
     [SubSlashCommand("settings", "Modify your VoiceMaster channel settings.")]
-    public async Task SettingsAsync()
-    {
+    public async Task SettingsAsync() {
         await RespondAsync(
             InteractionCallback.Message(
                 new InteractionMessageProperties()
@@ -81,8 +79,7 @@ public class VoiceMasterButtonModule : ComponentInteractionModule<ButtonInteract
     public readonly static ButtonProperties DisableButton = new(DisableButtonId, "2️⃣", ButtonStyle.Secondary);
 
     [ComponentInteraction(EnableButtonId)]
-    public async Task EnableAsync()
-    {
+    public async Task EnableAsync() {
         var embed = new EmbedProperties()
             .WithColor(Colors.Blue)
             .WithDescription("Please select the VoiceMaster channel below.");
@@ -98,8 +95,7 @@ public class VoiceMasterButtonModule : ComponentInteractionModule<ButtonInteract
     }
 
     [ComponentInteraction(DisableButtonId)]
-    public async Task DisableAsync()
-    {
+    public async Task DisableAsync() {
         GuildSettings.Upsert(Context.Guild!.Id, x => x.VoiceMasterChannelId = null);
 
         await RespondAsync(
@@ -132,20 +128,17 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
         );
 
     [ComponentInteraction(SetNameModalId)]
-    public async Task SetNameModalAsync()
-    {
+    public async Task SetNameModalAsync() {
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
         var input = Context.Components.OfType<TextInput>().First().Value;
         await HandleModalAsync(input, isName: true);
     }
 
     [ComponentInteraction(SetLimitModalId)]
-    public async Task SetLimitModalAsync()
-    {
+    public async Task SetLimitModalAsync() {
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
         var inputValue = Context.Components.OfType<TextInput>().First().Value;
-        if (!int.TryParse(inputValue, out var input))
-        {
+        if (!int.TryParse(inputValue, out var input)) {
             await ModifyResponseAsync(msg => msg.Components = [VoiceMasterStringMenuModule.SettingsMenu]);
             await FollowupAsync(new InteractionMessageProperties()
                 .WithEmbeds([
@@ -160,22 +153,18 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
         await HandleModalAsync(inputValue, isName: false);
     }
 
-    private async Task HandleModalAsync(string input, bool isName)
-    {
-        if (!UserVoiceMasterSettings.TryGet(Context.User!.Id, out var userSettings))
-        {
+    private async Task HandleModalAsync(string input, bool isName) {
+        if (!UserVoiceMasterSettings.TryGet(Context.User!.Id, out var userSettings)) {
             userSettings = UserVoiceMasterSettings.Default(Context.User!);
             UserVoiceMasterSettings.Upsert(userSettings);
         }
         var guildVmChannels = GuildVoiceMasterChannels.GetOrCreate(Context.Guild!.Id);
 
         // Change the user's settings.
-        if (isName)
-        {
+        if (isName) {
             userSettings.ChannelName = input;
         }
-        else
-        {
+        else {
             userSettings.ChannelLimit = int.Parse(input);
         }
         UserVoiceMasterSettings.Upsert(userSettings);
@@ -184,24 +173,20 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
         var guildUser = await guild!.GetUserAsync(Context.User!.Id)!;
         VoiceState? userVoiceState = null;
 
-        try
-        {
+        try {
             userVoiceState = await guildUser.GetVoiceStateAsync();
         }
         catch { }
 
         // If the user is in a channel, check if its a VoiceMaster channel and that they own it.
         var userOwnsChannel = false;
-        if (userVoiceState != null)
-        {
-            if (guildVmChannels.Channels.TryGetValue((ulong)userVoiceState.ChannelId!, out var userId))
-            {
+        if (userVoiceState != null) {
+            if (guildVmChannels.Channels.TryGetValue((ulong)userVoiceState.ChannelId!, out var userId)) {
                 userOwnsChannel = userId == Context.User!.Id;
             }
         }
 
-        if (userVoiceState == null || !userOwnsChannel)
-        {
+        if (userVoiceState == null || !userOwnsChannel) {
             await ModifyResponseAsync(msg => msg.Components = [VoiceMasterStringMenuModule.SettingsMenu]);
             await FollowupAsync(new InteractionMessageProperties()
                 .WithEmbeds([
@@ -214,18 +199,14 @@ public class VoiceMasterModalModule : ComponentInteractionModule<ModalInteractio
                 .WithFlags(MessageFlags.Ephemeral)
                 );
         }
-        else if (userOwnsChannel)
-        {
+        else if (userOwnsChannel) {
             // Get the user's channel and update the name or limit.
             guild!.Channels.TryGetValue((ulong)userVoiceState.ChannelId!, out var channel);
-            if (channel != null)
-            {
-                if (isName)
-                {
+            if (channel != null) {
+                if (isName) {
                     await channel.ModifyAsync(x => x.Name = input);
                 }
-                else
-                {
+                else {
                     await channel.ModifyAsync(x => x.UserLimit = int.Parse(input));
                 }
             }
@@ -256,11 +237,9 @@ public class VoiceMasterStringMenuModule : ComponentInteractionModule<StringMenu
     ]);
 
     [ComponentInteraction(SettingsMenuId)]
-    public async Task SettingsMenuAsync()
-    {
+    public async Task SettingsMenuAsync() {
         var option = Context.SelectedValues[0];
-        switch (option)
-        {
+        switch (option) {
             case SetNameOptionId:
                 await RespondAsync(InteractionCallback.Modal(VoiceMasterModalModule.SetNameModal));
                 break;
@@ -277,15 +256,13 @@ public class VoiceMasterChannelMenuModule : ComponentInteractionModule<ChannelMe
     public static readonly ChannelMenuProperties EnableMenu = new ChannelMenuProperties(EnableMenuId).AddChannelTypes([ChannelType.VoiceGuildChannel]);
 
     [ComponentInteraction(EnableMenuId)]
-    public async Task EnableChannelMenuAsync()
-    {
+    public async Task EnableChannelMenuAsync() {
         await RespondAsync(InteractionCallback.DeferredModifyMessage);
 
         var channel = Context.SelectedChannels[0]; // There should only ever be one channel selected.
         GuildSettings.Upsert(Context.Guild!.Id, x => x.VoiceMasterChannelId = channel.Id);
 
-        await ModifyResponseAsync(msg =>
-        {
+        await ModifyResponseAsync(msg => {
             msg.Components = [];
             msg.Embeds = [
                 new EmbedProperties()

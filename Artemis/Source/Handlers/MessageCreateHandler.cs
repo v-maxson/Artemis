@@ -8,8 +8,7 @@ public class MessageCreateHandler(Cache.MessageCache cache) : IGatewayEventHandl
 {
     public readonly Cache.MessageCache MessageCache = cache;
 
-    public ValueTask HandleAsync(Message message)
-    {
+    public ValueTask HandleAsync(Message message) {
         // Immediately cache all non-bot messages.
         if (!message.Author.IsBot) MessageCache.Add(message);
 

@@ -32,8 +32,7 @@ builder.Services
     .AddHangfireServer()
     .AddSingleton(config)
     .AddSingleton<Cache.MessageCache>()
-    .AddDiscordGateway(options =>
-    {
+    .AddDiscordGateway(options => {
         options.Token = config.Token;
         options.Intents = GatewayIntents.All;
     })

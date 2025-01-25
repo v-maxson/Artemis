@@ -13,16 +13,14 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
 {
     private readonly GatewayClient Client = client;
 
-    public async ValueTask HandleAsync(VoiceState currentState)
-    {
+    public async ValueTask HandleAsync(VoiceState currentState) {
         if (currentState.User!.IsBot) return;
         var previousState = GetPreviousStateAsync(currentState);
         if (currentState != null) await CreateVoiceMasterChannel(currentState);
         if (previousState != null) await DeleteVoiceMasterChannel(previousState);
     }
 
-    private VoiceState? GetPreviousStateAsync(VoiceState state)
-    {
+    private VoiceState? GetPreviousStateAsync(VoiceState state) {
         Client.TryGetGuild(state.GuildId, out var guild);
         if (guild == null) return null;
 
@@ -30,8 +28,7 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
         return previousState;
     }
 
-    private async Task CreateVoiceMasterChannel(VoiceState currentState)
-    {
+    private async Task CreateVoiceMasterChannel(VoiceState currentState) {
         // Get the settings for the current guild
         // If no settings are found or the current channel is not the VoiceMaster channel, return.
         if (!GuildSettings.TryGet(currentState.GuildId, out var guildSettings)) return;
@@ -41,16 +38,15 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
         // If the guild is not found, log an error and exit the method
         var guild = await Client.GetOrFetchGuildAsync(currentState.GuildId);
 
-        if (guild == null)
-        {
+        if (guild == null) {
             Log.Error("Failed to create VoiceMaster channel for guild {GuildId}. Guild not found.", currentState.GuildId);
             return;
         }
 
 
         // Get the VoiceMaster settings for the current user, or create default settings if none exist
-        if (!UserVoiceMasterSettings.TryGet(currentState.UserId, out var userSettings)) 
-            userSettings =  UserVoiceMasterSettings.Default(currentState.User!);
+        if (!UserVoiceMasterSettings.TryGet(currentState.UserId, out var userSettings))
+            userSettings = UserVoiceMasterSettings.Default(currentState.User!);
 
         // Update (or insert) the user's settings in the database.
         UserVoiceMasterSettings.Upsert(userSettings);
@@ -89,8 +85,7 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
             );
     }
 
-    private async Task DeleteVoiceMasterChannel(VoiceState previousState)
-    {
+    private async Task DeleteVoiceMasterChannel(VoiceState previousState) {
         if (!GuildVoiceMasterChannels.TryGet(previousState.GuildId, out var guildVmChannels)) return;
         if (!guildVmChannels.Channels.ContainsKey((ulong)previousState.ChannelId!)) return;
 
@@ -100,8 +95,7 @@ public class VoiceStateHandler(GatewayClient client) : IGatewayEventHandler<Voic
         if (voiceChannel == null) return;
 
         // Check if the previous channel is empty, if it is, delete it.
-        if (await voiceChannel.GetConnectedUserCountAsync(Client) == 0)
-        {
+        if (await voiceChannel.GetConnectedUserCountAsync(Client) == 0) {
             await voiceChannel.DeleteAsync();
 
             // This is handled in the VoiceChannelDelete event now.
