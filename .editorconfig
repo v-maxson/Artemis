@@ -11,6 +11,7 @@ insert_final_newline = true
 # C# files should place new braces on new lines
 [*.cs]
 csharp_new_line_before_open_brace = types
+dotnet_analyzer_diagnostic.category-Style.severity = silent
 
 # The JSON files contain newlines inconsistently
 [*.json]
